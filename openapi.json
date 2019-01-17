@@ -1,0 +1,36 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Sample API",
+    "description" : "this is a sample api",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "https://api.example.com/v1"
+  } ],
+  "paths" : {
+    "/users/{userId}" : {
+      "get" : {
+        "summary" : "Return a user by ID.",
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "The ID of the user to return",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "integer",
+            "format" : "int32"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    }
+  },
+  "components" : { }
+}
