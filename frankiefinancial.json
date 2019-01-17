@@ -1,0 +1,1546 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "------  \nThis API allows developers to create a connector module that can then be incorporated into the KYC Utility.\nIt is assumed that the module can be used to perform one or more of the following checks with an external provider.\n  - Checking name, address, date of birth against national databases\n  - Validating Australian driver's licences, passports, medicare, visas and other Australian national ID documents\n  - Validating Australian electricity bills\n  - Validating NZ driver's licences\n  - Validating Chinese bank cards and national ID card\n  - Validating International passports and national ID documents\n  - PEP, Sanctions, Watchlist and adverse media checking\n  \n------  \nIndustry specific services\n\n  - Comparing Australian electricity retailers for a better deal.\n  \n------  \nThe format of these APIs draw VERY heavily upon the public facing APIs that can be found at\n  - https://app.swaggerhub.com/apis-docs/FrankieFinancial/kycutility\n\nWe try to keep the version numbers in sync as things change on the public API\n------  \n\nThe traditional Swagger view of this documentation can be found here:\n  - https://app.swaggerhub.com/apis-docs/FrankieFinancial/KYC-Connector-Service/\n  \n------  \nContact us at dev@frankiefinancial.com for a Customer ID and Sandbox api key.\n",
+    "version" : "1.1.1",
+    "title" : "Frankie Financial Connector API (Internal Only)",
+    "contact" : {
+      "email" : "dev@frankiefinancial.com"
+    }
+  },
+  "host" : "connectors.ff.internal",
+  "basePath" : "/con_XXXXXX/v2",
+  "tags" : [ {
+    "name" : "Status",
+    "description" : "Service status functions you can use to make sure things are up and running."
+  }, {
+    "name" : "Document",
+    "description" : "Operations on specific ID documents, specific to an entity (people)."
+  }, {
+    "name" : "Entities",
+    "description" : "Operations on specific entities (people / companies / etc)"
+  }, {
+    "name" : "Industry",
+    "description" : "Industry-specific operations on documents and entities."
+  } ],
+  "schemes" : [ "https" ],
+  "consumes" : [ "application/json" ],
+  "produces" : [ "application/json" ],
+  "security" : [ {
+    "api_key" : [ ]
+  } ],
+  "paths" : {
+    "/document/scan" : {
+      "post" : {
+        "tags" : [ "Document" ],
+        "summary" : "Process a document by scanning and extracting relevant data.",
+        "description" : "Send the attached document scans to an external service for OCR processing and data extraction\n\n* NOTE: This is NOT the verification process (see /document/verify)\n\n* NOTE: This is NOT the comparison process either (see /document/compare)\n",
+        "operationId" : "ScanDocument",
+        "parameters" : [ {
+          "name" : "X-Frankie-CustomerID",
+          "in" : "header",
+          "description" : "Customer ID issued by Frankie Financial. This will never change. Your API key, which is mapped to this identity, will change over time.",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "X-Frankie-CustomerChildID",
+          "in" : "header",
+          "description" : "If, as a Frankie Customer, you are acting on behalf of your own customers, then you can populate this field with arbitrary data. \nAny documents, checks, entities that are created when this field has been populated will now be tied to this CustomerID + CustomerChildID combination. Just as Customers cannot see data created by other Customers, so too a Customer's Children will not be able to see each other's data.\nA Customer can see the documents/entities and checks of all their Children.\n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "X-Frankie-RequestID",
+          "in" : "header",
+          "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "document",
+          "description" : "The document and its associated scans to be processed through OCR.\n",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/IdentityDocumentObject"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the document object as it stands now.\n\nThe connector will attempt to interpret the scan results as best it can, by suggesting fields that said results can go into, creating a new document object. See the results description for more.      \n",
+            "schema" : {
+              "$ref" : "#/definitions/DocumentScanResultObject"
+            }
+          },
+          "400" : {
+            "description" : "Bad request. One or more request fields is either missing or incorrect. Details are in the error response.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "401" : {
+            "description" : "The request has failed an authorisation check. This can happen for a variety of reasons, such as an invalid or expired API key, or invalid Customer/CustomerChildIDs. \n* NOTE: This does not include attempts to read/write data you don't have access to - that's a 404 error (as we don't want to leak information through guessing)\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "404" : {
+            "description" : "Cannot return response. In the case of a query, or reference to a specific entity/check/etc, it means that the requested item was not found, or you don't have access to it. Please check your query before trying again.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "405" : {
+            "description" : "A request to POST an update to an object was not allowed due to it's state. This may indicate an already completed check, or a document that has been processed. You need to create a new document/check if you wish to update the object in question.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "415" : {
+            "description" : "For requests with payloads, an unsupported Content-Type was specified. The Frankie Financial API only supports a content type of application/json.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "422" : {
+            "description" : "Unprocessable request. This can be triggered in a number of ways.\n* An attempt to force a check or scan to run, but there is insufficient data to be able to do so.\n* An attempt to run a utility comparison, or similar industry/document/entity specific scan or process on an unsupported document type (e.g. electricity comparison on a passport)\nDetails of what is required will be in the issues list of the error response.\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "429" : {
+            "description" : "The API client is making too many concurrent requests, and some are being throttled. Throttled requests can be retried after a short delay.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error. Something went wrong during the checking process.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "503" : {
+            "description" : "All of the ID sources configured by the customer are unavailable, or there is no available document processor.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          }
+        }
+      }
+    },
+    "/document/compare" : {
+      "post" : {
+        "tags" : [ "Document" ],
+        "summary" : "Process a document by scanning and extracting relevant data.",
+        "description" : "Send the attached document scans to an external service for processing and comparison, such as comparing a selfie-video against a drivers licence photo.\n\n* NOTE: This is NOT the verification process (see /document/verify)\n\n* NOTE: This is NOT the OCR data extraction process either (see /document/scan)\n",
+        "operationId" : "CompareDocument",
+        "parameters" : [ {
+          "name" : "X-Frankie-CustomerID",
+          "in" : "header",
+          "description" : "Customer ID issued by Frankie Financial. This will never change. Your API key, which is mapped to this identity, will change over time.",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "X-Frankie-CustomerChildID",
+          "in" : "header",
+          "description" : "If, as a Frankie Customer, you are acting on behalf of your own customers, then you can populate this field with arbitrary data. \nAny documents, checks, entities that are created when this field has been populated will now be tied to this CustomerID + CustomerChildID combination. Just as Customers cannot see data created by other Customers, so too a Customer's Children will not be able to see each other's data.\nA Customer can see the documents/entities and checks of all their Children.\n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "X-Frankie-RequestID",
+          "in" : "header",
+          "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "ComparisonSet",
+          "description" : "Contains the document (compareDocument) we want to compare (toDocument)\n",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ComparisonSet"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the results of the document comparison process.\n",
+            "schema" : {
+              "$ref" : "#/definitions/DocumentCompareResultObject"
+            }
+          },
+          "400" : {
+            "description" : "Bad request. One or more request fields is either missing or incorrect. Details are in the error response.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "401" : {
+            "description" : "The request has failed an authorisation check. This can happen for a variety of reasons, such as an invalid or expired API key, or invalid Customer/CustomerChildIDs. \n* NOTE: This does not include attempts to read/write data you don't have access to - that's a 404 error (as we don't want to leak information through guessing)\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "404" : {
+            "description" : "Cannot return response. In the case of a query, or reference to a specific entity/check/etc, it means that the requested item was not found, or you don't have access to it. Please check your query before trying again.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "405" : {
+            "description" : "A request to POST an update to an object was not allowed due to it's state. This may indicate an already completed check, or a document that has been processed. You need to create a new document/check if you wish to update the object in question.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "415" : {
+            "description" : "For requests with payloads, an unsupported Content-Type was specified. The Frankie Financial API only supports a content type of application/json.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "422" : {
+            "description" : "Unprocessable request. This can be triggered in a number of ways.\n* An attempt to force a check or scan to run, but there is insufficient data to be able to do so.\n* An attempt to run a utility comparison, or similar industry/document/entity specific scan or process on an unsupported document type (e.g. electricity comparison on a passport)\nDetails of what is required will be in the issues list of the error response.\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "429" : {
+            "description" : "The API client is making too many concurrent requests, and some are being throttled. Throttled requests can be retried after a short delay.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error. Something went wrong during the checking process.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "503" : {
+            "description" : "All of the ID sources configured by the customer are unavailable, or there is no available document processor.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          }
+        }
+      }
+    },
+    "/document/verify" : {
+      "post" : {
+        "tags" : [ "Document" ],
+        "summary" : "Process a document by sending the details of the document for processing and verification.",
+        "description" : "Send the document to an external service to have the detailed verified.\n\nFor example, we could send through the details of a drivers licence to be checked against a national database.\n\n* NOTE: This is NOT the OCR data extraction process (see /document/scan)\n* NOTE: This is NOT the comparison process (see /document/compare)\n",
+        "operationId" : "VerifyDocument",
+        "parameters" : [ {
+          "name" : "X-Frankie-CustomerID",
+          "in" : "header",
+          "description" : "Customer ID issued by Frankie Financial. This will never change. Your API key, which is mapped to this identity, will change over time.",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "X-Frankie-CustomerChildID",
+          "in" : "header",
+          "description" : "If, as a Frankie Customer, you are acting on behalf of your own customers, then you can populate this field with arbitrary data. \nAny documents, checks, entities that are created when this field has been populated will now be tied to this CustomerID + CustomerChildID combination. Just as Customers cannot see data created by other Customers, so too a Customer's Children will not be able to see each other's data.\nA Customer can see the documents/entities and checks of all their Children.\n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "X-Frankie-RequestID",
+          "in" : "header",
+          "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "document",
+          "description" : "The document and (possibly) its associated scans to be verified.\n",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/IdentityDocumentObject"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the results of the document verification process.\n",
+            "schema" : {
+              "$ref" : "#/definitions/DocumentVerifyResultObject"
+            }
+          },
+          "400" : {
+            "description" : "Bad request. One or more request fields is either missing or incorrect. Details are in the error response.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "401" : {
+            "description" : "The request has failed an authorisation check. This can happen for a variety of reasons, such as an invalid or expired API key, or invalid Customer/CustomerChildIDs. \n* NOTE: This does not include attempts to read/write data you don't have access to - that's a 404 error (as we don't want to leak information through guessing)\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "404" : {
+            "description" : "Cannot return response. In the case of a query, or reference to a specific entity/check/etc, it means that the requested item was not found, or you don't have access to it. Please check your query before trying again.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "405" : {
+            "description" : "A request to POST an update to an object was not allowed due to it's state. This may indicate an already completed check, or a document that has been processed. You need to create a new document/check if you wish to update the object in question.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "415" : {
+            "description" : "For requests with payloads, an unsupported Content-Type was specified. The Frankie Financial API only supports a content type of application/json.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "422" : {
+            "description" : "Unprocessable request. This can be triggered in a number of ways.\n* An attempt to force a check or scan to run, but there is insufficient data to be able to do so.\n* An attempt to run a utility comparison, or similar industry/document/entity specific scan or process on an unsupported document type (e.g. electricity comparison on a passport)\nDetails of what is required will be in the issues list of the error response.\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "429" : {
+            "description" : "The API client is making too many concurrent requests, and some are being throttled. Throttled requests can be retried after a short delay.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error. Something went wrong during the checking process.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "503" : {
+            "description" : "All of the ID sources configured by the customer are unavailable, or there is no available document processor.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          }
+        }
+      }
+    },
+    "/document/{industry}/process/{industryProcess}" : {
+      "post" : {
+        "tags" : [ "Industry" ],
+        "summary" : "Process a document object, using an industry-specific process. This is similar to a scan or verify flow.",
+        "description" : "Using a previously uploaded but incomplete document, you can optionally supply updated details (such as corrections on a previous scan), along with one or more additional ID scans (e.g. additional pages).\nThe service will attempt to extract relevant data from any/all uploaded images/documents and will place those in the extraData KVP block.\nThe service will also perform the requested industry specific process\n",
+        "operationId" : "UpdateProcessIndustryDocument",
+        "parameters" : [ {
+          "name" : "X-Frankie-CustomerID",
+          "in" : "header",
+          "description" : "Customer ID issued by Frankie Financial. This will never change. Your API key, which is mapped to this identity, will change over time.",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "X-Frankie-CustomerChildID",
+          "in" : "header",
+          "description" : "If, as a Frankie Customer, you are acting on behalf of your own customers, then you can populate this field with arbitrary data. \nAny documents, checks, entities that are created when this field has been populated will now be tied to this CustomerID + CustomerChildID combination. Just as Customers cannot see data created by other Customers, so too a Customer's Children will not be able to see each other's data.\nA Customer can see the documents/entities and checks of all their Children.\n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "X-Frankie-RequestID",
+          "in" : "header",
+          "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "industry",
+          "in" : "path",
+          "description" : "Specify which industry the industry-specific process will come from.\nValid values are:\n  - \"electricity\": Electricity specific functions.\n  - \"gas\": Gas specific functions.\n  - \"gaming\": Gaming specific functions.\n  - \"gambling\": Gambling specific functions.\n  - \"cryptocurrency\": Cryptocurrency specific functions.\n",
+          "required" : true,
+          "type" : "string",
+          "enum" : [ "electricity", "gas", "gaming", "gambling", "cryptocurrency" ]
+        }, {
+          "name" : "industryProcess",
+          "in" : "path",
+          "description" : "Specify the industry-specific process to be performed\nValid values are:\n  - Electricity specific functions:\n    - scan (scan and extract account holder data)\n    - compare (scan, then generate plan comparison)\n  - Gas specific functions:\n    - scan (scan and extract account holder data)\n    - compare (scan, then generate plan comparison)\n  - Gambling specific functions:\n    - blacklist (add entity to industry blacklist)\n    - deblacklist (remove entity to industry blacklist)\n  - Cryptocurrency specific functions:\n    - blacklist (add entity to industry blacklist)\n    - deblacklist (remove entity to industry blacklist)\nNote: Trying to use a process not tied to an industry will generate an error response. So no silly business.\n",
+          "required" : true,
+          "type" : "string",
+          "enum" : [ "scan", "compare", "blacklist", "deblacklist" ]
+        }, {
+          "in" : "body",
+          "name" : "document",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/IdentityDocumentObject"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the document object as it stands now. No docScan file data will be returned unless the /full variant is requested.\nThe industry specific processing function details (such as compare) will also be returned.\n",
+            "schema" : {
+              "$ref" : "#/definitions/DocumentIndustryProcessResultObject"
+            }
+          },
+          "400" : {
+            "description" : "Bad request. One or more request fields is either missing or incorrect. Details are in the error response.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "401" : {
+            "description" : "The request has failed an authorisation check. This can happen for a variety of reasons, such as an invalid or expired API key, or invalid Customer/CustomerChildIDs. \n* NOTE: This does not include attempts to read/write data you don't have access to - that's a 404 error (as we don't want to leak information through guessing)\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "404" : {
+            "description" : "Cannot return response. In the case of a query, or reference to a specific entity/check/etc, it means that the requested item was not found, or you don't have access to it. Please check your query before trying again.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "415" : {
+            "description" : "For requests with payloads, an unsupported Content-Type was specified. The Frankie Financial API only supports a content type of application/json.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "422" : {
+            "description" : "Unprocessable request. This can be triggered in a number of ways.\n* An attempt to force a check or scan to run, but there is insufficient data to be able to do so.\n* An attempt to run a utility comparison, or similar industry/document/entity specific scan or process on an unsupported document type (e.g. electricity comparison on a passport)\nDetails of what is required will be in the issues list of the error response.\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "429" : {
+            "description" : "The API client is making too many concurrent requests, and some are being throttled. Throttled requests can be retried after a short delay.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error. Something went wrong during the checking process.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          }
+        }
+      }
+    },
+    "/entity/check/{checkType}" : {
+      "post" : {
+        "tags" : [ "Entity" ],
+        "summary" : "Run the requested checks on the supplied entity.",
+        "description" : "Take the details provided in the entity, and set about verifying them all.\nSo for example, you might extract:\n\n* The name from the entity.name object\n* The address from the entity.address object\n* The DoB..\n\nThen there are the attached documents. It is expected that the connector will verify all that are available with sufficient details to do so. How this is done is up to the connector developer.\n\nThe \n",
+        "operationId" : "CheckEntity",
+        "parameters" : [ {
+          "name" : "X-Frankie-CustomerID",
+          "in" : "header",
+          "description" : "Customer ID issued by Frankie Financial. This will never change. Your API key, which is mapped to this identity, will change over time.",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "X-Frankie-CustomerChildID",
+          "in" : "header",
+          "description" : "If, as a Frankie Customer, you are acting on behalf of your own customers, then you can populate this field with arbitrary data. \nAny documents, checks, entities that are created when this field has been populated will now be tied to this CustomerID + CustomerChildID combination. Just as Customers cannot see data created by other Customers, so too a Customer's Children will not be able to see each other's data.\nA Customer can see the documents/entities and checks of all their Children.\n",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "X-Frankie-RequestID",
+          "in" : "header",
+          "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "checkType",
+          "in" : "path",
+          "description" : "When creating a new check, we need to define the type we wish to run.\nValid values are:\n  - \"basic\": Checks only the name, address and date of birth against at least one data source.\n  - \"basic_gov\": Checks only the name, address and date of birth against at least one government data source.\n  - \"id_doc\": Will verify any Identity documents attached to the entity.\n  - \"two_plus\": Checks name, address and DoB against a minimum of 2 independent data sources.\n  - \"two_plus_gov\": Checks name, address and DoB against a minimum of 2 independent data sources, one of which must be a government issued ID. This will meet AUSTRAC's \"safe harbour\" provisions.\n  - \"all_id_attached\": Will attempt to verify all identity and documents attached.\n  - \"pep_sanctions\": Will only run PEP/Sanctions checks (no identity verification)\n  - \"pep_sanctions_all_id\": Will run PEP/Sanctions checks and identity verification on all attached docs\n  - \"pep_sanctions_extended\": Will run PEP/Sanctions checks, as well as watchlist and adverse media checks. (no identity verification)\n  - \"with_the_lot\": identify all attached documents (all_id_attached) AND a full PEP/Sanctions/Watchlist/Media check (pep_sanctions_extended)\n  - \"default\": Currently defined as \"all_id_attached\"\n",
+          "required" : true,
+          "type" : "string",
+          "default" : "all_id_attached",
+          "enum" : [ "default", "basic", "basic_gov", "id_doc", "two_plus", "two_plus_gov", "all_id_attached", "pep_sanctions", "pep_sanctions_all_id", "pep_sanctions_extended", "with_the_lot" ]
+        }, {
+          "in" : "body",
+          "name" : "entity",
+          "description" : "The entity to be checked",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/EntityObject"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the entity object as it stands now. No docScan file data from any attached ID documents will be returned unless the /full variant is requested.",
+            "schema" : {
+              "$ref" : "#/definitions/CheckEntityCheckResultObject"
+            }
+          },
+          "400" : {
+            "description" : "Bad request. One or more request fields is either missing or incorrect. Details are in the error response.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "401" : {
+            "description" : "The request has failed an authorisation check. This can happen for a variety of reasons, such as an invalid or expired API key, or invalid Customer/CustomerChildIDs. \n* NOTE: This does not include attempts to read/write data you don't have access to - that's a 404 error (as we don't want to leak information through guessing)\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "404" : {
+            "description" : "Cannot return response. In the case of a query, or reference to a specific entity/check/etc, it means that the requested item was not found, or you don't have access to it. Please check your query before trying again.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "405" : {
+            "description" : "A request to POST an update to an object was not allowed due to it's state. This may indicate an already completed check, or a document that has been processed. You need to create a new document/check if you wish to update the object in question.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "415" : {
+            "description" : "For requests with payloads, an unsupported Content-Type was specified. The Frankie Financial API only supports a content type of application/json.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "422" : {
+            "description" : "Unprocessable request. This can be triggered in a number of ways.\n* An attempt to force a check or scan to run, but there is insufficient data to be able to do so.\n* An attempt to run a utility comparison, or similar industry/document/entity specific scan or process on an unsupported document type (e.g. electricity comparison on a passport)\nDetails of what is required will be in the issues list of the error response.\n",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "429" : {
+            "description" : "The API client is making too many concurrent requests, and some are being throttled. Throttled requests can be retried after a short delay.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "500" : {
+            "description" : "Unexpected error. Something went wrong during the checking process.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          },
+          "503" : {
+            "description" : "All of the ID sources configured by the customer are unavailable, or there is no available document processor.",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          }
+        }
+      }
+    },
+    "/ruok" : {
+      "get" : {
+        "tags" : [ "Status" ],
+        "summary" : "Create a check on an entity",
+        "description" : "Simple check to see if the service is running smoothly.",
+        "operationId" : "StatusCheck",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "The system is fine. No issues, and everyone gets a puppy. But only if a Customer ID is supplied, otherwise, no puppy for you.",
+            "schema" : {
+              "$ref" : "#/definitions/PuppyObject"
+            }
+          },
+          "500" : {
+            "description" : "The system is presently unavailable, or running in a severely degraded state. Check the error message for details",
+            "schema" : {
+              "$ref" : "#/definitions/ErrorObject"
+            }
+          }
+        },
+        "security" : [ ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "api_key" : {
+      "description" : "API key issued by Frankie Financial. This will rotate regularly.",
+      "type" : "apiKey",
+      "name" : "api_key",
+      "in" : "header"
+    }
+  },
+  "definitions" : {
+    "enumIdType" : {
+      "type" : "string",
+      "description" : "Valid ID types\n  - \"OTHER\": Generic document type. Unspecified.\n  - \"DRIVERS_LICENCE\": Driver's licence.\n  - \"PASSPORT\": Passport\n  - \"VISA\": Visa document (not Visa payment card)\n  - \"NATIONAL_ID\": Any national ID card\n  - \"CONCESSION\": State issued concession card\n  - \"BIRTH_CERT\": Birth certificate\n  - \"CITIZENSHIP\": Citizenship certificate\n  - \"MARRIAGE_CERT\": Marriage certificate\n  - \"DEATH_CERT\": Death certificate\n  - \"NAME_CHANGE\": Name chage confirmation\n  - \"UTILITY_BILL\": Regulated utility bill, such as electricity, gas, etc\n  - \"BANK_STATEMENT\": Bank/card statement\n  - \"INTENT_PROOF\": A proof of intent. Generally a photo/video, or a scanned letter\n  - \"ATTESTATION\": A document of attestation (e.g. Statutory Declaration)\n  - \"EMAIL_ADDRESS\": An email address\n  - \"MSISDN\": A mobile phone number\n  - \"DEVICE\": A device ID\n",
+      "example" : "DRIVERS_LICENCE",
+      "enum" : [ "OTHER", "DRIVERS_LICENCE", "PASSPORT", "VISA", "NATIONAL_ID", "CONCESSION", "BIRTH_CERT", "CITIZENSHIP", "MARRIAGE_CERT", "DEATH_CERT", "NAME_CHANGE", "MOBILE_PHONE", "UTILITY_BILL", "BANK_STATEMENT", "INTENT_PROOF", "ATTESTATION", "EMAIL_ADDRESS", "MSISDN", "DEVICE" ]
+    },
+    "enumKVPType" : {
+      "type" : "string",
+      "description" : "Used to describe the contents of the KVP data. \n\nThe general.* and raw.* types are pretty much what they say on the tin.\n\nThe id.* and pii.* are used to indicate that this is data that can be used to create new document objects, or entities. They should also be treated with the utmost care and attention when it comes to securing them too.\n\nerror.* types can be used when processing a document that returns an error, but doesn't necessarily require a full blown error response. \n",
+      "enum" : [ "general.string", "general.integer", "general.float", "general.bool", "general.date", "general.datetime", "raw.json", "raw.xml", "raw.base64", "error.code", "error.message", "id.number.primary", "id.number.additional", "id.msisdn", "id.email", "id.device", "pii.name.full", "pii.name.familyname", "pii.name.givenname", "pii.name.middlename", "pii.gender", "pii.address.longform", "pii.address.street1", "pii.address.street2", "pii.address.postalcode", "pii.address.town", "pii.address.suburb", "pii.address.region", "pii.address.state", "pii.address.country", "pii.dob" ]
+    },
+    "enumScanType" : {
+      "type" : "string",
+      "description" : "Valid ID document scan general types.\n- \"PHOTO\": Any photo\n- \"VIDEO\": Any video\n- \"AUDIO\": Any audio\n- \"PDF\":   PDF or PS (may contain text, images or both)\n- \"DOC\":   Word doc, RTF, etc\n- \"ZIP\":   Any compressed file(s)\n",
+      "example" : "PDF",
+      "enum" : [ "PHOTO", "VIDEO", "AUDIO", "PDF", "DOC", "ZIP" ]
+    },
+    "enumScanSide" : {
+      "type" : "string",
+      "description" : "Describes if a scan is of the \"F\"ront or \"B\"ack of an ID. If not supplied, Front is always assumed.",
+      "example" : "F",
+      "enum" : [ "F", "B" ]
+    },
+    "enumGender" : {
+      "type" : "string",
+      "description" : "Used to indicate of the entity in question is:\n- \"M\"ale \n- \"F\"emale\n- \"U\"nspecified\n- \"O\"ther (for want of a better option)\n",
+      "example" : "F",
+      "enum" : [ "U", "F", "M", "O" ]
+    },
+    "enumMIMEType" : {
+      "type" : "string",
+      "description" : "The standard MIME type of the file being uploaded. We'll double-check to be certain, but this can help speed things up",
+      "example" : "image/png",
+      "enum" : [ "image/jpeg", "image/png", "image/gif", "image/webp", "image/tiff", "image/bmp", "application/zip", "application/x-tar", "application/x-rar-compressed", "application/gzip", "application/x-bzip2", "application/x-7z-compressed", "application/pdf", "application/rtf", "application/postscript", "audio/mpeg", "audio/m4a", "audio/x-wav", "audio/amr", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.ms-excel", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-powerpoint", "application/vnd.openxmlformats-officedocument.presentationml.presentation", "video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/x-ms-wmv", "video/mpeg" ]
+    },
+    "enumAddressType" : {
+      "type" : "string",
+      "description" : "Used to indicate what sort address this is, such as residential, business, postal, etc.",
+      "example" : "RESIDENTIAL",
+      "enum" : [ "OTHER", "RESIDENTIAL", "BUSINESS", "POSTAL" ]
+    },
+    "enumDocumentStatus" : {
+      "type" : "string",
+      "description" : "Current status of a document.\n- \"INITIALISING\": the state whilst you're uploading and updating\n- \"SCAN_IN_PROGRESS\": the state whilst it's being scanned. \n- \"DOC_SCANNED\": the document has been scanned and data extracted as best as possible. It's still possible to update the details and add more scans if you wish.\n- \"DOC_CHECKED\": the document has been used as part of a check that has been finalised in some way. You can no longer update this document and any attempt will generate an error.\n",
+      "example" : "DOC_SCANNED",
+      "enum" : [ "INITIALISING", "SCAN_IN_PROGRESS", "DOC_SCANNED", "DOC_CHECKED" ]
+    },
+    "enumCheckStatus" : {
+      "type" : "string",
+      "description" : "Current overall status of a given entity check\n- \"INITIALISING\": the state whilst you're uploading and updating\n- \"IN_PROGRESS\": the state whilst checks are ongoing. \n- \"REQUIRES_MORE_DATA\": tried to check, but more data is needed.\n- \"REQUIRES_MANUAL_REVIEW\": check attempted, but could not complete without manual review.\n- \"COMPLETE_PARTIAL_SUCCESS\": All checks complete, but only some succeeded\n- \"COMPLETE_SUCCESS_WITH_NOTES\": All checks complete, but there are some notes (e.g. PEP or sanctions). \n- \"COMPLETE_SUCCESS_CLEAR\": All checks complete, no additional notes.\n- \"COMPLETE_FAILED\": All checks complete, but all failed.\n",
+      "example" : "COMPLETE_PARTIAL_SUCCESS",
+      "enum" : [ "INITIALISING", "IN_PROGRESS", "REQUIRES_MORE_DATA", "REQUIRES_MANUAL_REVIEW", "COMPLETE_PARTIAL_SUCCESS", "COMPLETE_SUCCESS_WITH_NOTES", "COMPLETE_SUCCESS_CLEAR", "COMPLETE_FAILED" ]
+    },
+    "enumProcessStatus" : {
+      "type" : "string",
+      "description" : "Current overall status of a given document-related process (such as scan, compare or validate)\n- \"NOT_SUPPORTED\": the requested check type or industry function is not supported by this connector.\n- \"IN_PROGRESS\": the process is ongoing\n- \"ERROR\": an error occurred when trying to process\n- \"UNPROCESSABLE\": The document was unprocessable. \n- \"PROCESSED_EMPTY\": Processing completed without error, but nothing usable was obtained\n- \"PROCESSED\": Processing completed without error and data is being returned\n",
+      "example" : "PROCESSED",
+      "enum" : [ "NOT_SUPPORTED", "IN_PROGRESS", "ERROR", "UNPROCESSABLE", "PROCESSED_EMPTY", "PROCESSED" ]
+    },
+    "enumCheckResultState" : {
+      "type" : "string",
+      "description" : "Check state for an individual data point\n- \"UNCHECKED\": Check has not yet been performed\n- \"CHECKING\": Checks are underway. \n- \"CHECKED_PARTIAL_SUCCESS\": All checks complete, but only some succeeded.\n- \"CHECKED_SUCCESS_WITH_NOTES\": All checks complete, but there are some notes (e.g. PEP or sanctions).\n- \"CHECKED_SUCCESS_CLEAR\": All checks complete, no additional notes\n- \"CHECKED_FAILED\": All checks complete, but all failed. \n",
+      "example" : "CHECKED_PARTIAL_SUCCESS",
+      "enum" : [ "UNCHECKED", "CHECKING", "CHECKED_PARTIAL_SUCCESS", "CHECKED_SUCCESS_WITH_NOTES", "CHECKED_SUCCESS_CLEAR", "CHECKED_FAILED" ]
+    },
+    "enumIndustryProcessResultType" : {
+      "type" : "string",
+      "description" : "Used to define industry specific response types.\nEach one maps directly to a polymorphic subclass of the IndustryProcessResultObject type.\nValid values are:\n  - \"elecScanResult\": |\n    Results of an OCR scan of an electricity bill. Essentially the same as a regular document scan.\n    \n    See the model description elecScanResult for details. \n    \n    *Note:* The SwaggerHub version of this documentation is probably best for viewing these specific details.\n    \n  - \"elecCompareResult\": |\n    After a scan has been performed, compare the current electricity plan for alternatives and present the results.\n    \n    See the model description elecCompareResult for details. \n    \n    *Note:* The SwaggerHub version of this documentation is probably best for viewing these specific details.\n    \n  - MORE coming soon!\n    \n",
+      "enum" : [ "elecScanResult", "elecCompareResult" ]
+    },
+    "KeyValuePairObject" : {
+      "type" : "object",
+      "properties" : {
+        "kvpKey" : {
+          "type" : "string",
+          "example" : "CRN",
+          "description" : "Name of the data"
+        },
+        "kvpValue" : {
+          "type" : "string",
+          "example" : "123-456-789A",
+          "description" : "Value of the data"
+        },
+        "kvpType" : {
+          "$ref" : "#/definitions/enumKVPType"
+        }
+      },
+      "description" : "Individual key-value pair"
+    },
+    "RequestIDObject" : {
+      "type" : "string",
+      "format" : "uuid",
+      "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+      "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051"
+    },
+    "ErrorObject" : {
+      "type" : "object",
+      "required" : [ "errorMsg", "httpStatusCode", "requestId" ],
+      "properties" : {
+        "requestId" : {
+          "$ref" : "#/definitions/RequestIDObject"
+        },
+        "httpStatusCode" : {
+          "type" : "integer",
+          "example" : 501,
+          "description" : "HTTP status code. Same as what is passed back in the header."
+        },
+        "errorCode" : {
+          "type" : "string",
+          "example" : "CORE-5990",
+          "description" : "Frankie error code"
+        },
+        "errorMsg" : {
+          "type" : "string",
+          "example" : "Everything went kaflooey. Stay clam.",
+          "description" : "Will describe the error"
+        },
+        "issues" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ErrorObject_issues"
+          }
+        }
+      }
+    },
+    "ScannedDocumentObject" : {
+      "type" : "object",
+      "properties" : {
+        "scanDocId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "When an document scan is created/uploaded, it is assigned a scanDocId. You'll see this in a successful response or successfully accepted response. This can then be referenced in subsequent calls if you're uploading more/updated data."
+        },
+        "scanType" : {
+          "$ref" : "#/definitions/enumScanType"
+        },
+        "scanSide" : {
+          "$ref" : "#/definitions/enumScanSide"
+        },
+        "scanFilename" : {
+          "type" : "string",
+          "example" : "Important Document - ID1234567.pdf",
+          "description" : "If you're uploading a file where it's important to keep the original filename, then you can provide that here. Otherwise the Frankie service will assign an arbitrary name and an extension based on the MIME type"
+        },
+        "scanPageNum" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "If uploading multiple pages - it's handy to keep a track of these. There is no enforcement of these numbers at all. You can have 10 page 1's and a page 29 if you wish.",
+          "minimum" : 0
+        },
+        "scanMIME" : {
+          "$ref" : "#/definitions/enumMIMEType"
+        },
+        "scanKeep" : {
+          "type" : "boolean",
+          "description" : "Used as a way of indicating to the service that the original scanned document is not to be kept after it has been processed. We will retain any metadata and the results of processing (where required by regulation or the customer), but the original file uploaded will eventually be remnoved once processing is complete. \nIf scanKeep is set to false, any call with /full at the end will still not return the file contents, regardless of whether the file has been deleted yet (the deletion process is a background task that can take a few minutes to occur)\n"
+        },
+        "scanData" : {
+          "type" : "string",
+          "format" : "byte",
+          "example" : "VGhpcyBpcyBzb21lIGV4YW1wbGUgZGF0YS4gV29vLCBJIGJldCB5b3UgcmVncmV0IHRoZSB0aW1lIHlvdSB3YXN0ZWQgZGVjb2RpbmcgdGhpcywgaHVoPw==",
+          "description" : "Base64 encoded string of a photo or scan of an ID document to be verified. If supplied and of a supported type, the Frankie service will attempt to use OCR tech to extract the data from the scanned doc/image.\nIn a result message, this field will be left blank, unless the \"full\" action is requested.\n",
+          "pattern" : "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$"
+        }
+      },
+      "description" : "the document to be attached and optionally scanned (if supported)"
+    },
+    "IdentityDocumentObject" : {
+      "type" : "object",
+      "required" : [ "country", "idType" ],
+      "properties" : {
+        "documentId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "When an ID document is created/uploaded, it is assigned a documentId. You'll see this in a successful response or successfully accepted response. This can then be referenced in subsequent calls if you're uploading more/updated data."
+        },
+        "idType" : {
+          "$ref" : "#/definitions/enumIdType"
+        },
+        "idSubType" : {
+          "type" : "string",
+          "description" : "The sub-type of identity document. Very document specific."
+        },
+        "country" : {
+          "type" : "string",
+          "example" : "AU",
+          "description" : "The ISO country code of the issuing national. Once set, this cannot be changed."
+        },
+        "region" : {
+          "type" : "string",
+          "example" : "VIC",
+          "description" : "Regional variant of the ID (e.g. VIC drivers licence)"
+        },
+        "idNumber" : {
+          "type" : "string",
+          "example" : "123456789",
+          "description" : "The ID number of the document (if known)."
+        },
+        "idExpiry" : {
+          "type" : "string",
+          "format" : "date",
+          "example" : "2020-02-01",
+          "description" : "The expiry data of the document (if known) in YYYY-MM-DD format."
+        },
+        "documentStatus" : {
+          "$ref" : "#/definitions/enumDocumentStatus"
+        },
+        "createdFromScan" : {
+          "type" : "boolean",
+          "example" : true,
+          "description" : "This document's data was initially created from scanned and processed images. The value cannot be set manually and any attempt to do so will just be ignored.",
+          "readOnly" : true
+        },
+        "manuallyModified" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "If this document was originally populated from scanned data, then manually adjusted (e.g. if the scan's results weren't 100% correct or data was missing), then this will be set to true. The value cannot be set manually and any attempt to do so will just be ignored.",
+          "readOnly" : true
+        },
+        "extraData" : {
+          "type" : "array",
+          "description" : "Set of key-value pairs that provide ID type-specific data. If updating an existing document, then existing values with the same name will be overwritten. New values will be added.\nIf this document is scanned through OCR or similar processes, then extracted data will be found here (Some may be used to populate other fields like idNumber and idExpiry as well)\n",
+          "items" : {
+            "$ref" : "#/definitions/KeyValuePairObject"
+          }
+        },
+        "docScan" : {
+          "type" : "array",
+          "description" : "Collection of one or more objects that describe scan(s) that need to be put through OCR or facial recognition. These should all be from the one ID document, such as front/back, or page 1, 2, 3, etc. You can upload multiple scans in a single call, or in multiple calls. \n  Note: if you do upload over multiple calls, make sure you include the documentId (see above), and indicate that this is happening with a \"more_data\" checkAction\n",
+          "items" : {
+            "$ref" : "#/definitions/ScannedDocumentObject"
+          }
+        }
+      }
+    },
+    "ComparisonSet" : {
+      "type" : "object",
+      "properties" : {
+        "compareDocument" : {
+          "$ref" : "#/definitions/IdentityDocumentObject"
+        },
+        "toDocument" : {
+          "$ref" : "#/definitions/IdentityDocumentObject"
+        }
+      },
+      "description" : "This is the document that we want to compare to the original toDocument.\n\nIn the case of a selfie-check against a drivers licence:\n\n  * compareDocument will be the the selfie\n  * toDocument will be the drivers licence photo\n"
+    },
+    "IndustryProcessElecComparePlanResult" : {
+      "type" : "object",
+      "properties" : {
+        "estimatePeriodDays" : {
+          "type" : "integer",
+          "example" : 73
+        },
+        "estimatedTotalCost" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 224.61
+        },
+        "rank" : {
+          "type" : "integer",
+          "example" : 1
+        },
+        "estimatedSaving" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 28.11
+        },
+        "plan" : {
+          "$ref" : "#/definitions/IndustryProcessElecComparePlanResult_plan"
+        }
+      }
+    },
+    "IndustryProcessElecCompareItemLineResult" : {
+      "type" : "object",
+      "properties" : {
+        "rateType" : {
+          "type" : "string",
+          "example" : "supplyCharge"
+        },
+        "period" : {
+          "type" : "integer",
+          "example" : 1
+        },
+        "rate" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 84.1
+        },
+        "value" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 0.0
+        }
+      },
+      "description" : "Describes the various rates charged as determined from the bill."
+    },
+    "IndustryProcessElecCompareResultObject" : {
+      "type" : "object",
+      "properties" : {
+        "comparisonDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "The time of the comparison"
+        },
+        "plans" : {
+          "type" : "array",
+          "description" : "List of electricity plan objects. Use their \"rank\" property to sort.",
+          "items" : {
+            "$ref" : "#/definitions/IndustryProcessElecComparePlanResult"
+          }
+        },
+        "currentBillData" : {
+          "$ref" : "#/definitions/IndustryProcessElecCompareResultObject_currentBillData"
+        },
+        "maximumSaving" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 28.11
+        },
+        "correlationId" : {
+          "type" : "string",
+          "example" : "7656f8a5-821a-47e6-a504-38751373d079"
+        }
+      },
+      "description" : "*IMPORTANT*: industryProcess MUST be elecCompareResult \n\nStores the results of an electricity price comparison\n"
+    },
+    "IndustryProcessDocumentResultObject" : {
+      "type" : "object",
+      "required" : [ "industryProcess" ],
+      "discriminator" : "industryProcess",
+      "properties" : {
+        "industryProcess" : {
+          "$ref" : "#/definitions/enumIndustryProcessResultType"
+        }
+      },
+      "description" : "Generic industry process result object. Used to wrap up industry-specific resultsets."
+    },
+    "elecScanResult" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/IndustryProcessDocumentResultObject"
+      }, {
+        "type" : "object",
+        "properties" : {
+          "resultString" : {
+            "type" : "string",
+            "description" : "Simple description of the result. SUCCESS or FAIL.",
+            "enum" : [ "SUCCESS", "FAIL" ]
+          }
+        }
+      } ],
+      "description" : "*IMPORTANT*: industryProcess MUST be elecScanResult \n\nResults of an OCR scan of an electricity bill. Essentially the same as a regular document scan. No additional data is required, just the regular document object. Contents \n"
+    },
+    "elecCompareResult" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/IndustryProcessDocumentResultObject"
+      }, {
+        "$ref" : "#/definitions/IndustryProcessElecCompareResultObject"
+      } ],
+      "description" : "*IMPORTANT*: industryProcess MUST be elecCompareResult \n\nAfter a scan has been performed, compare the current electricity plan for alternatives and present the results.\n"
+    },
+    "DocumentScanResultObject" : {
+      "type" : "object",
+      "required" : [ "requestId", "scanStatus" ],
+      "properties" : {
+        "requestId" : {
+          "$ref" : "#/definitions/RequestIDObject"
+        },
+        "scanStatus" : {
+          "$ref" : "#/definitions/enumProcessStatus"
+        },
+        "extractedDocument" : {
+          "$ref" : "#/definitions/IdentityDocumentObject"
+        }
+      },
+      "description" : "The result of a scan will contain 3 parts\n\n* The requestid - that's always there, and is the same that was passed in in the header.\n\n* The scan status, that tells you what happend\n\n* extractedDocument - the connector is expected to try (if possible) and create a new document object as best it can from the data returned. So if a drivers licence is scanned, then the idNumber, idExpiry, country, type, etc fields can be filled in.\n\n  * It is also expected that all extracted fields are returned in the extraData KVP section as well. These will need to be labelled with the appropriate type too, in order to identify potential personal identifying information.\n  \n* SPECIAL NOTE: The documentId in extractedDocument MUST be the same as the one passed in in the request document. Other than that, you do not need to copy over any other data from the original, only data that was returned from the scan.\n\n* EXTRA SPECIAL NOTE: If no useful data was returned, \n"
+    },
+    "ProcessResultObject" : {
+      "type" : "object",
+      "properties" : {
+        "resultState" : {
+          "$ref" : "#/definitions/enumCheckResultState"
+        },
+        "resultNotes" : {
+          "type" : "array",
+          "description" : "Any additional notes that may relate to the state. These are returned as typed KVPs",
+          "items" : {
+            "$ref" : "#/definitions/KeyValuePairObject"
+          }
+        },
+        "checkDate" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "The date and time the item was checked to provide this result."
+        },
+        "confidenceLevel" : {
+          "type" : "integer",
+          "format" : "int32",
+          "example" : 70,
+          "description" : "Confidence in the result on a scale of 0 (no match) to 100 (strong/identical match). Whole integers only.",
+          "minimum" : 0,
+          "maximum" : 100
+        },
+        "checkPerformedBy" : {
+          "type" : "string",
+          "example" : "greenid",
+          "description" : "Service provider that performed the check. Basically the name of the connector, without the leading con_\n"
+        },
+        "providerCheckID" : {
+          "type" : "string",
+          "description" : "The service provider will give us a receipt, transaction id, check number, or some such that gives us a unique id on their side that we can reconcile with"
+        }
+      },
+      "description" : "Stores the generic results of a process (check, scan, compare, verify, etc)"
+    },
+    "DocumentVerificationResultObject" : {
+      "type" : "object",
+      "properties" : {
+        "documentId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "This is a direct copy from the document object passed in for verifcation. You MUST supply this."
+        },
+        "processResult" : {
+          "$ref" : "#/definitions/ProcessResultObject"
+        }
+      },
+      "description" : "Contains the details of a check on a given data point"
+    },
+    "DocumentVerifyResultObject" : {
+      "type" : "object",
+      "required" : [ "requestId" ],
+      "properties" : {
+        "requestId" : {
+          "$ref" : "#/definitions/RequestIDObject"
+        },
+        "documentVerificationResults" : {
+          "$ref" : "#/definitions/DocumentVerificationResultObject"
+        }
+      },
+      "description" : "Contains the results of a given document upload."
+    },
+    "DocumentComparisonResultObject" : {
+      "type" : "object",
+      "properties" : {
+        "compareDocumentId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "This is a direct copy from the compareDocument object passed in the request. You MUST supply this."
+        },
+        "toDocumentId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "This is a direct copy from the toDocument object passed in the request. You MUST supply this."
+        },
+        "processResult" : {
+          "$ref" : "#/definitions/ProcessResultObject"
+        }
+      },
+      "description" : "Contains the details of a comparison between two documents"
+    },
+    "DocumentCompareResultObject" : {
+      "type" : "object",
+      "required" : [ "requestId" ],
+      "properties" : {
+        "requestId" : {
+          "$ref" : "#/definitions/RequestIDObject"
+        },
+        "documentComparisonResults" : {
+          "$ref" : "#/definitions/DocumentComparisonResultObject"
+        }
+      },
+      "description" : "Contains the results of a given document upload."
+    },
+    "DocumentIndustryProcessResultObject" : {
+      "type" : "object",
+      "required" : [ "document", "industryProcessResult", "requestId" ],
+      "properties" : {
+        "requestId" : {
+          "$ref" : "#/definitions/RequestIDObject"
+        },
+        "document" : {
+          "$ref" : "#/definitions/IdentityDocumentObject"
+        },
+        "industryProcessResult" : {
+          "$ref" : "#/definitions/IndustryProcessDocumentResultObject"
+        }
+      },
+      "description" : "Contains the results of a given document upload."
+    },
+    "PersonalNameObject" : {
+      "type" : "object",
+      "required" : [ "familyName" ],
+      "properties" : {
+        "honourific" : {
+          "type" : "string",
+          "example" : "Duchess",
+          "description" : "Mr/Ms/Dr/Dame/Dato/etc."
+        },
+        "familyName" : {
+          "type" : "string",
+          "example" : "Smith",
+          "description" : "Family name / Surname of the individual."
+        },
+        "givenName" : {
+          "type" : "string",
+          "example" : "Jane",
+          "description" : "First / Given name"
+        },
+        "middleName" : {
+          "type" : "string",
+          "example" : "Cecily",
+          "description" : "Middle name(s) / Initials"
+        },
+        "displayName" : {
+          "type" : "string",
+          "example" : "Jane Cecily Smith",
+          "description" : "In some cases, the name will need to be supplied in \"long form\", such as when it is determined from a document scan, or is un-parsable in some way.\nThe service will attempt to convert it to it's constituent parts where possible.\n"
+        }
+      }
+    },
+    "DOBObject" : {
+      "type" : "object",
+      "required" : [ "yearOfBirth" ],
+      "properties" : {
+        "yearOfBirth" : {
+          "type" : "string",
+          "example" : "1978",
+          "description" : "Year of birth or \"unknown\". This will be autoextracted if dateOfBirth is supplied."
+        },
+        "dateOfBirth" : {
+          "type" : "string",
+          "format" : "date",
+          "example" : "1978-11-12",
+          "description" : "Date of Birth in YYYY-MM-DD format"
+        }
+      }
+    },
+    "AddressObject" : {
+      "type" : "object",
+      "required" : [ "country" ],
+      "properties" : {
+        "addressType" : {
+          "$ref" : "#/definitions/enumAddressType"
+        },
+        "unitNumber" : {
+          "type" : "string",
+          "example" : "Suite 1006",
+          "description" : "Unit/Apartment/Flat/Suite/etc number"
+        },
+        "streetNumber" : {
+          "type" : "string",
+          "example" : "42a",
+          "description" : "The number on the street. Generally a number, but can also be alphanumeric (e.g. 3A)"
+        },
+        "streetName" : {
+          "type" : "string",
+          "example" : "Test Eagle",
+          "description" : "The name of the street (do not include number or St/Rd/Ave/etc - these go in related fields)"
+        },
+        "streetType" : {
+          "type" : "string",
+          "example" : "Road",
+          "description" : "The street \"type\" - e.g. Road, St, Ave, Circuit, etc"
+        },
+        "buildingName" : {
+          "type" : "string",
+          "example" : "Tower of Power",
+          "description" : "The name of the building, apartment block, condo, etc"
+        },
+        "suburb" : {
+          "type" : "string",
+          "example" : "Testburb",
+          "description" : "The suburb in the town/city. Only use this if you require a suburb AND a town/city, otherwise, just use the \"town\" parameter."
+        },
+        "town" : {
+          "type" : "string",
+          "example" : "Testville",
+          "description" : "The town/village/suburb/city"
+        },
+        "region" : {
+          "type" : "string",
+          "example" : "Test County",
+          "description" : "The county, province, cantonment"
+        },
+        "state" : {
+          "type" : "string",
+          "example" : "TST",
+          "description" : "The state. Use local abbreviations, such as VIC(toria) or TX (Texas)"
+        },
+        "country" : {
+          "type" : "string",
+          "example" : "Testalia",
+          "description" : "The ISO country code (e.g. AU, US, ID, KO, etc)"
+        },
+        "postalCode" : {
+          "type" : "string",
+          "example" : "123-TST",
+          "description" : "The post code of the address."
+        },
+        "longForm" : {
+          "type" : "string",
+          "example" : "42a Test Eagle Road, Testville, TST 123-TST, Testalia",
+          "description" : "In some cases, the address will need to be supplied in \"long form\", such as when it is determined from a document scan, or is un-parsable in some way.\nThe service will attempt to convert it to it's constituent parts where possible.\nWARNING: Use of longForm is not guaranteed to produce perfect results, due to the variety of potential formats. You've been warned. \n"
+        }
+      }
+    },
+    "EntityObject" : {
+      "type" : "object",
+      "properties" : {
+        "entityId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "When an entity is first created, it is assigned an ID. When updating an entity, make sure you set the entityId\nOne exception to this is when an entity is created from a document object. It is expected that this object would be passed into a /check or /entity call to set it.\n"
+        },
+        "name" : {
+          "$ref" : "#/definitions/PersonalNameObject"
+        },
+        "dateOfBirth" : {
+          "$ref" : "#/definitions/DOBObject"
+        },
+        "gender" : {
+          "$ref" : "#/definitions/enumGender"
+        },
+        "addresses" : {
+          "type" : "array",
+          "description" : "Collection of address objects.",
+          "items" : {
+            "$ref" : "#/definitions/AddressObject"
+          }
+        },
+        "identityDocs" : {
+          "type" : "array",
+          "description" : "Collection of identity documents (photos, scans, selfies, etc)",
+          "items" : {
+            "$ref" : "#/definitions/IdentityDocumentObject"
+          }
+        }
+      },
+      "description" : "Describes all of the data being used to verify an entity."
+    },
+    "CheckIDObject" : {
+      "type" : "string",
+      "format" : "uuid",
+      "description" : "Unique identifier for every check. Make sure you reference this ID whenever updating check details. This ID will also be used when pushing check results back to you.",
+      "example" : "54a1116d-68ae-4d7d-9a53-505184a9a860"
+    },
+    "CheckEntityCheckResultObject" : {
+      "type" : "object",
+      "properties" : {
+        "entityId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "84a9a860-68ae-4d7d-9a53-54a1116d5051",
+          "description" : "This is the \n"
+        },
+        "nameCheck" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProcessResultObject"
+          }
+        },
+        "dateOfBirthCheck" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProcessResultObject"
+          }
+        },
+        "genderCheck" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProcessResultObject"
+          }
+        },
+        "addressesCheck" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProcessResultObject"
+          }
+        },
+        "identityDocsCheck" : {
+          "type" : "array",
+          "description" : "Collection of identity documents (photos, scans, selfies, etc), and their check results",
+          "items" : {
+            "$ref" : "#/definitions/DocumentVerificationResultObject"
+          }
+        }
+      },
+      "description" : "Describes all of the checks that were run against an entity.\n\nIt is expected that the connector may need to run multiple checks on the data\n\ne.g if you attach 2 forms of ID, then the name, and probably DoB will have been verified twice. so there will be 2 or more references there.\n"
+    },
+    "CheckResultObject" : {
+      "type" : "object",
+      "required" : [ "checkId", "entityCheckResults", "requestId" ],
+      "properties" : {
+        "requestId" : {
+          "$ref" : "#/definitions/RequestIDObject"
+        },
+        "checkId" : {
+          "$ref" : "#/definitions/CheckIDObject"
+        },
+        "checkStatus" : {
+          "$ref" : "#/definitions/enumCheckStatus"
+        },
+        "entityCheckResults" : {
+          "$ref" : "#/definitions/CheckEntityCheckResultObject"
+        }
+      },
+      "description" : "Contains the results of a given check. The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. This same"
+    },
+    "PuppyObject" : {
+      "type" : "object",
+      "required" : [ "puppy" ],
+      "properties" : {
+        "puppy" : {
+          "type" : "boolean",
+          "example" : true,
+          "default" : true
+        }
+      },
+      "description" : "We told you; everyone gets a puppy"
+    },
+    "ErrorObject_issues" : {
+      "required" : [ "issueLocation" ],
+      "properties" : {
+        "issueLocation" : {
+          "type" : "string",
+          "example" : "dateOfBirth",
+          "description" : "Will describe the field or data location of the issue"
+        },
+        "issue" : {
+          "type" : "string",
+          "example" : "Invalid format. Must be YYYY-MM-DD",
+          "description" : "Description of the problem"
+        }
+      }
+    },
+    "IndustryProcessElecComparePlanResult_plan_retailer" : {
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "example" : "434028"
+        }
+      }
+    },
+    "IndustryProcessElecComparePlanResult_plan" : {
+      "properties" : {
+        "retailer" : {
+          "$ref" : "#/definitions/IndustryProcessElecComparePlanResult_plan_retailer"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "AMAYSIM Single Rate Electricity 2"
+        },
+        "id" : {
+          "type" : "string",
+          "example" : "661313"
+        }
+      }
+    },
+    "IndustryProcessElecCompareResultObject_currentBillData_retailer" : {
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "EnergyAustralia"
+        },
+        "id" : {
+          "type" : "integer",
+          "example" : 9637
+        }
+      }
+    },
+    "IndustryProcessElecCompareResultObject_currentBillData" : {
+      "properties" : {
+        "itemLines" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/IndustryProcessElecCompareItemLineResult"
+          }
+        },
+        "accountAddress" : {
+          "type" : "string",
+          "example" : "XX Some Street, Surburb NSW XXXX"
+        },
+        "accountName" : {
+          "type" : "string",
+          "example" : "Mr CIARAN MCCORMACK"
+        },
+        "billDateTo" : {
+          "type" : "string",
+          "format" : "date-time",
+          "example" : "2018-08-31T00:00:00.000+10:00"
+        },
+        "retailer" : {
+          "$ref" : "#/definitions/IndustryProcessElecCompareResultObject_currentBillData_retailer"
+        },
+        "actualPlanTotalCost" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 264.68
+        },
+        "billDateFrom" : {
+          "type" : "string",
+          "format" : "date-time",
+          "example" : "2018-06-20T00:00:00.000+10:00"
+        },
+        "discount" : {
+          "type" : "number",
+          "format" : "float",
+          "example" : 46.29
+        },
+        "nmi" : {
+          "type" : "string",
+          "example" : "41032915992"
+        },
+        "supplyAddress" : {
+          "type" : "string",
+          "example" : "XX Some Street, Surburb NSW XXXX"
+        }
+      }
+    }
+  },
+  "parameters" : {
+    "CustomerIDHeader" : {
+      "name" : "X-Frankie-CustomerID",
+      "in" : "header",
+      "description" : "Customer ID issued by Frankie Financial. This will never change. Your API key, which is mapped to this identity, will change over time.",
+      "required" : true,
+      "type" : "string",
+      "format" : "uuid"
+    },
+    "CustomerChildIDHeader" : {
+      "name" : "X-Frankie-CustomerChildID",
+      "in" : "header",
+      "description" : "If, as a Frankie Customer, you are acting on behalf of your own customers, then you can populate this field with arbitrary data. \nAny documents, checks, entities that are created when this field has been populated will now be tied to this CustomerID + CustomerChildID combination. Just as Customers cannot see data created by other Customers, so too a Customer's Children will not be able to see each other's data.\nA Customer can see the documents/entities and checks of all their Children.\n",
+      "required" : false,
+      "type" : "string"
+    },
+    "RequestIDHeader" : {
+      "name" : "X-Frankie-RequestID",
+      "in" : "header",
+      "description" : "Unique identifier for every request. Can be used for tracking down answers with technical support.\n\nSupplied in the header of every message. \nReturned in the response body of all requests\n",
+      "required" : true,
+      "type" : "string",
+      "format" : "uuid"
+    },
+    "CheckTypeParameter" : {
+      "name" : "checkType",
+      "in" : "path",
+      "description" : "When creating a new check, we need to define the type we wish to run.\nValid values are:\n  - \"basic\": Checks only the name, address and date of birth against at least one data source.\n  - \"basic_gov\": Checks only the name, address and date of birth against at least one government data source.\n  - \"id_doc\": Will verify any Identity documents attached to the entity.\n  - \"two_plus\": Checks name, address and DoB against a minimum of 2 independent data sources.\n  - \"two_plus_gov\": Checks name, address and DoB against a minimum of 2 independent data sources, one of which must be a government issued ID. This will meet AUSTRAC's \"safe harbour\" provisions.\n  - \"all_id_attached\": Will attempt to verify all identity and documents attached.\n  - \"pep_sanctions\": Will only run PEP/Sanctions checks (no identity verification)\n  - \"pep_sanctions_all_id\": Will run PEP/Sanctions checks and identity verification on all attached docs\n  - \"pep_sanctions_extended\": Will run PEP/Sanctions checks, as well as watchlist and adverse media checks. (no identity verification)\n  - \"with_the_lot\": identify all attached documents (all_id_attached) AND a full PEP/Sanctions/Watchlist/Media check (pep_sanctions_extended)\n  - \"default\": Currently defined as \"all_id_attached\"\n",
+      "required" : true,
+      "type" : "string",
+      "default" : "all_id_attached",
+      "enum" : [ "default", "basic", "basic_gov", "id_doc", "two_plus", "two_plus_gov", "all_id_attached", "pep_sanctions", "pep_sanctions_all_id", "pep_sanctions_extended", "with_the_lot" ]
+    },
+    "IndustryPathParameter" : {
+      "name" : "industry",
+      "in" : "path",
+      "description" : "Specify which industry the industry-specific process will come from.\nValid values are:\n  - \"electricity\": Electricity specific functions.\n  - \"gas\": Gas specific functions.\n  - \"gaming\": Gaming specific functions.\n  - \"gambling\": Gambling specific functions.\n  - \"cryptocurrency\": Cryptocurrency specific functions.\n",
+      "required" : true,
+      "type" : "string",
+      "enum" : [ "electricity", "gas", "gaming", "gambling", "cryptocurrency" ]
+    },
+    "IndustryProcessPathParameter" : {
+      "name" : "industryProcess",
+      "in" : "path",
+      "description" : "Specify the industry-specific process to be performed\nValid values are:\n  - Electricity specific functions:\n    - scan (scan and extract account holder data)\n    - compare (scan, then generate plan comparison)\n  - Gas specific functions:\n    - scan (scan and extract account holder data)\n    - compare (scan, then generate plan comparison)\n  - Gambling specific functions:\n    - blacklist (add entity to industry blacklist)\n    - deblacklist (remove entity to industry blacklist)\n  - Cryptocurrency specific functions:\n    - blacklist (add entity to industry blacklist)\n    - deblacklist (remove entity to industry blacklist)\nNote: Trying to use a process not tied to an industry will generate an error response. So no silly business.\n",
+      "required" : true,
+      "type" : "string",
+      "enum" : [ "scan", "compare", "blacklist", "deblacklist" ]
+    }
+  },
+  "responses" : {
+    "respOk200SuccessCheckEntity" : {
+      "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the entity object as it stands now. No docScan file data from any attached ID documents will be returned unless the /full variant is requested.",
+      "schema" : {
+        "$ref" : "#/definitions/CheckEntityCheckResultObject"
+      }
+    },
+    "respOk200SuccessDocumentScan" : {
+      "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the document object as it stands now.\n\nThe connector will attempt to interpret the scan results as best it can, by suggesting fields that said results can go into, creating a new document object. See the results description for more.      \n",
+      "schema" : {
+        "$ref" : "#/definitions/DocumentScanResultObject"
+      }
+    },
+    "respOk200SuccessDocumentVerify" : {
+      "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the results of the document verification process.\n",
+      "schema" : {
+        "$ref" : "#/definitions/DocumentVerifyResultObject"
+      }
+    },
+    "respOk200SuccessDocumentCompare" : {
+      "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the results of the document comparison process.\n",
+      "schema" : {
+        "$ref" : "#/definitions/DocumentCompareResultObject"
+      }
+    },
+    "respOk200SuccessIndustryDocument" : {
+      "description" : "The request was valid and able to be processed in some fashion. Results may or may not be successful, but it was completed as far as practical with no actual errors. Returns the document object as it stands now. No docScan file data will be returned unless the /full variant is requested.\nThe industry specific processing function details (such as compare) will also be returned.\n",
+      "schema" : {
+        "$ref" : "#/definitions/DocumentIndustryProcessResultObject"
+      }
+    },
+    "respErr400BadRequest" : {
+      "description" : "Bad request. One or more request fields is either missing or incorrect. Details are in the error response.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr401Unauthorized" : {
+      "description" : "The request has failed an authorisation check. This can happen for a variety of reasons, such as an invalid or expired API key, or invalid Customer/CustomerChildIDs. \n* NOTE: This does not include attempts to read/write data you don't have access to - that's a 404 error (as we don't want to leak information through guessing)\n",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr404CannotReturnResponse" : {
+      "description" : "Cannot return response. In the case of a query, or reference to a specific entity/check/etc, it means that the requested item was not found, or you don't have access to it. Please check your query before trying again.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr405NotAllowed" : {
+      "description" : "A request to POST an update to an object was not allowed due to it's state. This may indicate an already completed check, or a document that has been processed. You need to create a new document/check if you wish to update the object in question.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr415UnsupportedMediaType" : {
+      "description" : "For requests with payloads, an unsupported Content-Type was specified. The Frankie Financial API only supports a content type of application/json.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr422Unprocessable" : {
+      "description" : "Unprocessable request. This can be triggered in a number of ways.\n* An attempt to force a check or scan to run, but there is insufficient data to be able to do so.\n* An attempt to run a utility comparison, or similar industry/document/entity specific scan or process on an unsupported document type (e.g. electricity comparison on a passport)\nDetails of what is required will be in the issues list of the error response.\n",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr429TooManyRequests" : {
+      "description" : "The API client is making too many concurrent requests, and some are being throttled. Throttled requests can be retried after a short delay.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr500UnexpectedError" : {
+      "description" : "Unexpected error. Something went wrong during the checking process.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respErr503NoSourcesAvailable" : {
+      "description" : "All of the ID sources configured by the customer are unavailable, or there is no available document processor.",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    },
+    "respSystem200OK" : {
+      "description" : "The system is fine. No issues, and everyone gets a puppy. But only if a Customer ID is supplied, otherwise, no puppy for you.",
+      "schema" : {
+        "$ref" : "#/definitions/PuppyObject"
+      }
+    },
+    "respSystem500NotGood" : {
+      "description" : "The system is presently unavailable, or running in a severely degraded state. Check the error message for details",
+      "schema" : {
+        "$ref" : "#/definitions/ErrorObject"
+      }
+    }
+  }
+}
