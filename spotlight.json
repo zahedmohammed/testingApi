@@ -1,0 +1,476 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Monitoring Data Service is the main storage for monitoring data in Spotlight Cloud.\n\n**Search 'MDS User Guide' for more information.**",
+    "version" : "1.0.0-rc1",
+    "title" : "Monitoring Data Service V4 - Alarm Ingest"
+  },
+  "host" : "api.spotlightessentials.com",
+  "basePath" : "/ingest/api/v4",
+  "schemes" : [ "https" ],
+  "produces" : [ "application/json" ],
+  "security" : [ {
+    "bearerAuth" : [ ]
+  } ],
+  "paths" : {
+    "/organizations/{organizationId}/diagnostic-servers/{diagnosticServerId}/alarms/checkpoint/{timestamp}" : {
+      "post" : {
+        "summary" : "Post Status Checkpoint record for a Diagnostic Server",
+        "operationId" : "PostAlarmCheckpoint",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "diagnosticServerId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "timestamp",
+          "in" : "path",
+          "description" : "\nThe time at which the DS is sending this checkpoint.\nThis is in ISO8601 format. 1 Jan 2018 @ 2:00 => `2018 - 01 - 01T02: 00:00.000Z`",
+          "required" : true,
+          "type" : "string",
+          "format" : "date-time"
+        }, {
+          "in" : "body",
+          "name" : "Checkpoint",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WireAlarmCheckpointModel"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Checkpoint record successfully ingested"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/organizations/{organizationId}/diagnostic-servers/{diagnosticServerId}/connections/{connectionId}/alarms" : {
+      "put" : {
+        "summary" : "Post Alarm Stream record for a Diagnostic Server",
+        "operationId" : "PutAlarmStream",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "diagnosticServerId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "connectionId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "StreamRecord",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WirePostAlarmStreamModel"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Stream records successfully ingested"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      },
+      "patch" : {
+        "summary" : "Post Alarm Stream record for a Diagnostic Server",
+        "operationId" : "PutAlarmStream",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "diagnosticServerId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "connectionId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "StreamRecord",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WirePostAlarmStreamModel"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Stream records successfully ingested"
+          },
+          "400" : {
+            "description" : "Bad request"
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/organizations/{organizationId}/queuemessage" : {
+      "post" : {
+        "summary" : "Add a message for the DS to the queue - in development",
+        "operationId" : "PostMessageQueue",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "messagerecord",
+          "description" : "Message details",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WirePostMessageQueueModel"
+          }
+        }, {
+          "name" : "organizationId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Message added to the queue"
+          },
+          "400" : {
+            "description" : "Bad request."
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    },
+    "/Test" : {
+      "get" : {
+        "summary" : "Run Test",
+        "operationId" : "Test",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Function app is up and running.",
+            "schema" : {
+              "type" : "string"
+            }
+          }
+        },
+        "security" : [ {
+          "bearerAuth" : [ ]
+        } ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "bearerAuth" : {
+      "type" : "apiKey",
+      "name" : "Authorization",
+      "in" : "header"
+    }
+  },
+  "definitions" : {
+    "AlarmSeverity" : {
+      "type" : "string",
+      "format" : "string",
+      "enum" : [ "Invalid", "Normal", "Information", "Low", "Medium", "High" ]
+    },
+    "AlarmStatusCount" : {
+      "type" : "object",
+      "properties" : {
+        "Severity" : {
+          "$ref" : "#/definitions/AlarmSeverity"
+        },
+        "Count" : {
+          "type" : "integer",
+          "format" : "int32"
+        }
+      },
+      "additionalProperties" : { }
+    },
+    "AlarmState" : {
+      "type" : "string",
+      "format" : "string",
+      "enum" : [ "Normal", "Snoozed", "Snoozing", "Acknowledging", "Acknowledged" ]
+    },
+    "WireAlarmKeyModel" : {
+      "type" : "object",
+      "properties" : {
+        "Name" : {
+          "type" : "string",
+          "description" : "The unique identifier for an instance of an alarm. Equivalent to StorageKey in existing DiagnosticServer. This is used for matching up Snooze records."
+        },
+        "AlarmId" : {
+          "type" : "string",
+          "description" : "The unique identifier for an instance of an alarm. Equivalent to StorageKey in existing DiagnosticServer. This is used for matching up Snooze records."
+        },
+        "EvaluationId" : {
+          "type" : "string",
+          "description" : "The unique identifier for evaluation of an instance of an alarm. There may be multiple evaluationId records for one AlarmId over time"
+        },
+        "Severity" : {
+          "$ref" : "#/definitions/AlarmSeverity"
+        },
+        "State" : {
+          "$ref" : "#/definitions/AlarmState"
+        }
+      },
+      "additionalProperties" : { }
+    },
+    "ServerState" : {
+      "type" : "string",
+      "format" : "string",
+      "enum" : [ "Normal", "Outage", "PlannedOutage", "AcknowledgedOutage", "Disabled" ]
+    },
+    "MonitoredServerModel" : {
+      "type" : "object",
+      "properties" : {
+        "ConnectionId" : {
+          "type" : "string",
+          "format" : "uuid"
+        },
+        "ConnectionName" : {
+          "type" : "string"
+        },
+        "DisplayName" : {
+          "type" : "string"
+        },
+        "Severity" : {
+          "$ref" : "#/definitions/AlarmSeverity"
+        },
+        "AlarmCounts" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/AlarmStatusCount"
+          }
+        },
+        "Alarms" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WireAlarmKeyModel"
+          }
+        },
+        "Technology" : {
+          "type" : "string"
+        },
+        "State" : {
+          "$ref" : "#/definitions/ServerState"
+        }
+      },
+      "additionalProperties" : { }
+    },
+    "WireAlarmCheckpointModel" : {
+      "type" : "object",
+      "properties" : {
+        "TimestampUTC" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "DiagnosticServerHost" : {
+          "type" : "string"
+        },
+        "DiagnosticServerId" : {
+          "type" : "string",
+          "format" : "uuid"
+        },
+        "OrganizationId" : {
+          "type" : "string",
+          "format" : "uuid"
+        },
+        "UserAgent" : {
+          "type" : "string"
+        },
+        "MonitoredServers" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/MonitoredServerModel"
+          }
+        }
+      },
+      "additionalProperties" : { }
+    },
+    "WirePostAlarmStreamModel" : {
+      "type" : "object",
+      "properties" : {
+        "AlarmId" : {
+          "type" : "string",
+          "description" : "The unique identifier for an instance of an alarm. Equivalent to StorageKey in existing DiagnosticServer. This is used for matching up Snooze/Ack records."
+        },
+        "EvaluationId" : {
+          "type" : "string",
+          "description" : "The unique identifier for evaluation of an instance of an alarm. There may be multiple evaluationId records for one AlarmId"
+        },
+        "TimestampUTC" : {
+          "type" : "string",
+          "format" : "date-time",
+          "description" : "Only here to support old SoSSE DS that does include this properly"
+        },
+        "DiagnosticServerId" : {
+          "type" : "string",
+          "format" : "uuid"
+        },
+        "OrganizationId" : {
+          "type" : "string",
+          "format" : "uuid"
+        },
+        "ConnectionId" : {
+          "type" : "string",
+          "format" : "uuid"
+        },
+        "Name" : {
+          "type" : "string"
+        },
+        "DisplayName" : {
+          "type" : "string"
+        },
+        "ErrorText" : {
+          "type" : "string"
+        },
+        "FirstRaised" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "LastRaised" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "Severity" : {
+          "$ref" : "#/definitions/AlarmSeverity"
+        },
+        "Occurrences" : {
+          "type" : "integer",
+          "format" : "int64"
+        },
+        "AcknowledgedBy" : {
+          "type" : "string"
+        },
+        "TimeAcknowledged" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "SnoozedBy" : {
+          "type" : "string"
+        },
+        "SnoozedUntil" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "TimeConditionCleared" : {
+          "type" : "string",
+          "format" : "date-time"
+        },
+        "GuardExpressionFailed" : {
+          "type" : "boolean"
+        },
+        "AdditionalInformation" : {
+          "type" : "string"
+        },
+        "Value" : {
+          "type" : "number",
+          "format" : "double"
+        },
+        "ThresholdMinValue" : {
+          "type" : "number",
+          "format" : "double"
+        },
+        "InternalKey" : {
+          "type" : "string"
+        },
+        "Key" : {
+          "type" : "string"
+        },
+        "State" : {
+          "$ref" : "#/definitions/AlarmState"
+        }
+      },
+      "additionalProperties" : { }
+    },
+    "WireMessageType" : {
+      "type" : "string",
+      "format" : "string",
+      "enum" : [ "Unspecified", "Ack", "Snooze" ]
+    },
+    "WirePostMessageModel" : {
+      "type" : "object",
+      "required" : [ "MessageType", "Properties" ],
+      "properties" : {
+        "MessageType" : {
+          "$ref" : "#/definitions/WireMessageType"
+        },
+        "Properties" : {
+          "type" : "object",
+          "example" : "Snoozed: true",
+          "additionalProperties" : {
+            "type" : "string"
+          }
+        }
+      },
+      "additionalProperties" : { }
+    },
+    "WirePostMessageQueueModel" : {
+      "type" : "object",
+      "properties" : {
+        "OrganizationId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "00000000-0000-0000-0000-000000000000"
+        },
+        "Messages" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WirePostMessageModel"
+          }
+        }
+      },
+      "additionalProperties" : { }
+    }
+  }
+}
