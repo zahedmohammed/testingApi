@@ -1,0 +1,2086 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "User and Tenant Management API",
+    "version" : "1.0.0",
+    "title" : "User and Tenant Management API",
+    "contact" : {
+      "email" : "sleckie@paywizard.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/paywizard-sleckie/UserManagement/1.0.0",
+  "tags" : [ {
+    "name" : "Application",
+    "description" : "Application API Controller"
+  }, {
+    "name" : "Feature",
+    "description" : "Application Features API Controller"
+  }, {
+    "name" : "Tenant",
+    "description" : "Tenant API Controller"
+  }, {
+    "name" : "Role",
+    "description" : "Role API Controller"
+  }, {
+    "name" : "User",
+    "description" : "User API Controller"
+  }, {
+    "name" : "Validation",
+    "description" : "Access Validation Api Controller"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/validation/Role/{userId}" : {
+      "post" : {
+        "tags" : [ "Validation" ],
+        "summary" : "Verifies that a user is in a specific role",
+        "description" : "Validates that a given user has the requested role. Please pay close attention to the return codes, and be sure that you differentiate request failure codes (401, 403, 404) from a negative query response  (412)",
+        "operationId" : "validateRoleUser",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "role",
+          "description" : "The the user and role to validate",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/RoleAccessValidation"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The user is in the requested role"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized (request)"
+          },
+          "403" : {
+            "description" : "Forbidden (request)"
+          },
+          "404" : {
+            "description" : "Role or user not found",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "412" : {
+            "description" : "The user does not have the requested role"
+          }
+        }
+      }
+    },
+    "/user" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Create a user",
+        "description" : "Create a user and associate it with a tenant and role",
+        "operationId" : "createUser",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "user",
+          "description" : "The description of the role to create",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/User"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Create user request successful",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          }
+        }
+      }
+    },
+    "/user/list" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "List users",
+        "description" : "List users for a given tenant.",
+        "operationId" : "listUsers",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "userSearch",
+          "description" : "The details to use for searching",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/UserSearch"
+          }
+        }, {
+          "name" : "activeFilter",
+          "in" : "query",
+          "description" : "If not supplied, only active users will be returned. If supplied, specifies whether to return only active, only inactive, or all users. ",
+          "required" : false,
+          "type" : "string",
+          "default" : "ACTIVE",
+          "enum" : [ "ACTIVE", "INACTIVE", "ALL" ]
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "The number of results to show on a single page. If not supplied, defaults to 20",
+          "required" : false,
+          "type" : "integer",
+          "default" : 20,
+          "format" : "int32"
+        }, {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The optional page number (starting from 1)",
+          "required" : false,
+          "type" : "integer",
+          "default" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "orderBy",
+          "in" : "query",
+          "description" : "Field and direction to order results",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "searchId",
+          "in" : "query",
+          "description" : "Used for matching search requests and responses where clients may be making multiple concurrent requests",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Role search successful",
+            "schema" : {
+              "$ref" : "#/definitions/PagedUserList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/user/{userId}" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "Get a user",
+        "description" : "Fetches a user",
+        "operationId" : "getUser",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "ID of the user to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "User" ],
+        "summary" : "Update a user with new details",
+        "description" : "Updates a user with new details.",
+        "operationId" : "updateUser",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "ID of the user to update",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "user",
+          "description" : "The details of the user to update",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/User"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update user request successful",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "422" : {
+            "description" : "Unable to update user",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "User" ],
+        "summary" : "Update individual fields of a user",
+        "description" : "Update individual fields of an existing user.",
+        "operationId" : "patchUser",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "the ID of the user to update",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "user",
+          "description" : "The details of the user to update. Only fields for which a non-empty value is provided will be updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/User"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update user request successful",
+            "schema" : {
+              "$ref" : "#/definitions/User"
+            }
+          },
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not found",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "422" : {
+            "description" : "Unable to update user",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/user/{userId}/features" : {
+      "get" : {
+        "tags" : [ "User" ],
+        "summary" : "Get a list of features for a user",
+        "description" : "Fetches a list of features that the specified user has access to, based on their role",
+        "operationId" : "getUserFeatures",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "ID of the user to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/role" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Create a role",
+        "description" : "Create a role on behalf of a tenant, which contains a collection of features",
+        "operationId" : "createRole",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "role",
+          "description" : "The description of the role to create",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Role"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Create role request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Role"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          }
+        }
+      }
+    },
+    "/role/list" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "List roles",
+        "description" : "List roles for a given tenant.",
+        "operationId" : "listRoles",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "roleSearch",
+          "description" : "The details to use for searching",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/RoleSearch"
+          }
+        }, {
+          "name" : "activeFilter",
+          "in" : "query",
+          "description" : "If not supplied, only active roles will be returned. If supplied, specifies whether to return only active, only inactive, or all roles. ",
+          "required" : false,
+          "type" : "string",
+          "default" : "ACTIVE",
+          "enum" : [ "ACTIVE", "INACTIVE", "ALL" ]
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "The number of results to show on a single page. If not supplied, defaults to 20",
+          "required" : false,
+          "type" : "integer",
+          "default" : 20,
+          "format" : "int32"
+        }, {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The optional page number (starting from 1)",
+          "required" : false,
+          "type" : "integer",
+          "default" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "orderBy",
+          "in" : "query",
+          "description" : "Field and direction to order results",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "searchId",
+          "in" : "query",
+          "description" : "Used for matching search requests and responses where clients may be making multiple concurrent requests",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Role search successful",
+            "schema" : {
+              "$ref" : "#/definitions/PagedRoleList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/role/{roleId}" : {
+      "get" : {
+        "tags" : [ "Role" ],
+        "summary" : "Get a role",
+        "description" : "Fetches a role.",
+        "operationId" : "getRole",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "roleId",
+          "in" : "path",
+          "description" : "ID of the role to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/Role"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Role" ],
+        "summary" : "Update a role with new details",
+        "description" : "Updates a role with new details.",
+        "operationId" : "updateRole",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "roleId",
+          "in" : "path",
+          "description" : "ID of the role to update",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "role",
+          "description" : "The details of the role to update",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Role"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update role request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Role"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "422" : {
+            "description" : "Unable to update role",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "Role" ],
+        "summary" : "Update individual fields of a role",
+        "description" : "Update individual fields of an existing role.",
+        "operationId" : "patchRole",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "roleId",
+          "in" : "path",
+          "description" : "the ID of the role to update",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "role",
+          "description" : "The details of the role to update. Only fields for which a non-empty value is provided will be updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Role"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update feature request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Role"
+            }
+          },
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not found",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "422" : {
+            "description" : "Unable to update role",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/role/{roleId}/users" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Get all users in a role",
+        "description" : "Fetches all users in arole",
+        "operationId" : "getRoleUsers",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "roleId",
+          "in" : "path",
+          "description" : "ID of the role for which to retrieve the users",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "activeFilter",
+          "in" : "query",
+          "description" : "If not supplied, only active users will be returned. If supplied, specifies whether to return only active, only inactive, or all users. ",
+          "required" : false,
+          "type" : "string",
+          "default" : "ACTIVE",
+          "enum" : [ "ACTIVE", "INACTIVE", "ALL" ]
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "The number of results to show on a single page. If not supplied, defaults to 20",
+          "required" : false,
+          "type" : "integer",
+          "default" : 20,
+          "format" : "int32"
+        }, {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The optional page number (starting from 1)",
+          "required" : false,
+          "type" : "integer",
+          "default" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "orderBy",
+          "in" : "query",
+          "description" : "Field and direction to order results",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "searchId",
+          "in" : "query",
+          "description" : "Used for matching search requests and responses where clients may be making multiple concurrent requests",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/PagedUserList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/tenant" : {
+      "post" : {
+        "tags" : [ "Tenant" ],
+        "summary" : "Create a tenant",
+        "description" : "Creates a tenant that can access one or more applications. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "createTenant",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "tenant",
+          "description" : "The description of the tenant to create",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Tenant"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Create tenant request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Tenant"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          }
+        }
+      }
+    },
+    "/tenant/list" : {
+      "post" : {
+        "tags" : [ "Tenant" ],
+        "summary" : "List tenants",
+        "description" : "List all tenants. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "listTenants",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "tenantSearch",
+          "description" : "The details to use for searching",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/TenantSearch"
+          }
+        }, {
+          "name" : "activeFilter",
+          "in" : "query",
+          "description" : "If not supplied, only active tenants will be returned. If supplied, specifies whether to return only active, only inactive, or all tenants. ",
+          "required" : false,
+          "type" : "string",
+          "default" : "ACTIVE",
+          "enum" : [ "ACTIVE", "INACTIVE", "ALL" ]
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "The number of results to show on a single page. If not supplied, defaults to 20",
+          "required" : false,
+          "type" : "integer",
+          "default" : 20,
+          "format" : "int32"
+        }, {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The optional page number (starting from 1)",
+          "required" : false,
+          "type" : "integer",
+          "default" : 1,
+          "format" : "int32"
+        }, {
+          "name" : "orderBy",
+          "in" : "query",
+          "description" : "Field and direction to order results",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "searchId",
+          "in" : "query",
+          "description" : "Used for matching search requests and responses where clients may be making multiple concurrent requests",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Application search successful",
+            "schema" : {
+              "$ref" : "#/definitions/PagedTenantList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/tenant/{hostedTenantId}" : {
+      "get" : {
+        "tags" : [ "Tenant" ],
+        "summary" : "Get a tenant",
+        "description" : "Fetches a tenant.",
+        "operationId" : "getTenant",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "hostedTenantId",
+          "in" : "path",
+          "description" : "ID of the hosted tenant to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/Tenant"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Tenant" ],
+        "summary" : "Update a tenant with new details",
+        "description" : "Updates a tenant with new details. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "updateTenant",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "hostedTenantId",
+          "in" : "path",
+          "description" : "ID of the hosted tenant to update",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "tenant",
+          "description" : "The details of the tenant to update",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Tenant"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update tenant request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Tenant"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "422" : {
+            "description" : "Unable to update tenant",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "Tenant" ],
+        "summary" : "Update individual fields of a tenant",
+        "description" : "Update individual fields of an existing tenant. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "patchTenant",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "hostedTenantId",
+          "in" : "path",
+          "description" : "the ID of the hosted tenant to update",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "tenant",
+          "description" : "The details of the tenant to update. Only fields for which a non-empty value is provided will be updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Tenant"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update feature request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Tenant"
+            }
+          },
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not found",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "422" : {
+            "description" : "Unable to update tenant",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/feature" : {
+      "post" : {
+        "tags" : [ "Feature" ],
+        "summary" : "Create a feature",
+        "description" : "Creates a feature that is associated with an application, and is  referenced by one or more roles. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "createFeature",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "feature",
+          "description" : "The description of the feature to create",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Feature"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Create feature request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Feature"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          }
+        }
+      }
+    },
+    "/feature/list" : {
+      "post" : {
+        "tags" : [ "Feature" ],
+        "summary" : "List features",
+        "description" : "Lists features for an application",
+        "operationId" : "listFeatures",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "applicationId",
+          "in" : "path",
+          "description" : "ID of the application to retrieve features for",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/FeatureList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/feature/{featureId}" : {
+      "get" : {
+        "tags" : [ "Feature" ],
+        "summary" : "Get a feature",
+        "description" : "Fetches a feature",
+        "operationId" : "getFeature",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "featureId",
+          "in" : "path",
+          "description" : "ID of the feature to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/Feature"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Feature" ],
+        "summary" : "Update a feature with new details",
+        "description" : "Updates a feature with new details. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "updateFeature",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "featureId",
+          "in" : "path",
+          "description" : "ID of the feature to update",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "feature",
+          "description" : "The details of the feature to update",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Feature"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update feature request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Feature"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "422" : {
+            "description" : "Unable to update feature",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "Feature" ],
+        "summary" : "Update individual fields of a feature",
+        "description" : "Update individual fields of an existing feature. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "patchFeature",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "featureId",
+          "in" : "path",
+          "description" : "the ID of the feature to update",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "feature",
+          "description" : "The details of the feature to update. Only fields for which a non-empty value is provided will be updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Feature"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update feature request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Feature"
+            }
+          },
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not found",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "422" : {
+            "description" : "Unable to update feature",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    },
+    "/application" : {
+      "post" : {
+        "tags" : [ "Application" ],
+        "summary" : "Create an application",
+        "description" : "Creates an application that can be associated with features and tenants. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "createApplication",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "application",
+          "description" : "The description of the application to create",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Application"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "201" : {
+            "description" : "Create application request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Application"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          }
+        }
+      }
+    },
+    "/application/list" : {
+      "post" : {
+        "tags" : [ "Application" ],
+        "summary" : "List applications",
+        "description" : "List all applications. This request can be made by a tenant caller.",
+        "operationId" : "listApplications",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "activeFilter",
+          "in" : "query",
+          "description" : "If not supplied, only active applications will be returned. If supplied, specifies whether to return only active, only inactive, or all applications. ",
+          "required" : false,
+          "type" : "string",
+          "enum" : [ "ACTIVE", "INACTIVE", "ALL" ]
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Application search successful",
+            "schema" : {
+              "$ref" : "#/definitions/ApplicationList"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      }
+    },
+    "/application/{applicationId}" : {
+      "get" : {
+        "tags" : [ "Application" ],
+        "summary" : "Get an application",
+        "description" : "Fetches an application. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "getApplication",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "applicationId",
+          "in" : "path",
+          "description" : "ID of the application to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Success",
+            "schema" : {
+              "$ref" : "#/definitions/Application"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Application" ],
+        "summary" : "Update an application with new details",
+        "description" : "Updates an application with new details. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "updateApplication",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "applicationId",
+          "in" : "path",
+          "description" : "ID of the application to retrieve",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "application",
+          "description" : "The details of the application to update",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Application"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update application request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Application"
+            }
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "422" : {
+            "description" : "Unable to update application",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "Application" ],
+        "summary" : "Update individual fields of an application",
+        "description" : "Update individual fields of an existing application. Note that this request can only be performed by users in the special \"Paywizard Tenant Admins\" group.",
+        "operationId" : "patchApplication",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "tenantId",
+          "in" : "header",
+          "description" : "The ID of the tenant for which the operation is being carried out",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "applicationId",
+          "in" : "path",
+          "description" : "the ID of the application to update",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "application",
+          "description" : "The details of the application to update. Only fields for which a non-empty value is provided will be updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Application"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Update application request successful",
+            "schema" : {
+              "$ref" : "#/definitions/Application"
+            }
+          },
+          "204" : {
+            "description" : "No Content"
+          },
+          "400" : {
+            "description" : "Bad request",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized"
+          },
+          "403" : {
+            "description" : "Forbidden"
+          },
+          "404" : {
+            "description" : "Not found",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          },
+          "422" : {
+            "description" : "Unable to update application",
+            "schema" : {
+              "$ref" : "#/definitions/APIError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "APIError" : {
+      "type" : "object",
+      "properties" : {
+        "developerMessage" : {
+          "type" : "string"
+        },
+        "errorCode" : {
+          "type" : "string"
+        },
+        "moreInfo" : {
+          "type" : "string"
+        },
+        "displayMessage" : {
+          "type" : "string"
+        }
+      },
+      "title" : "APIError"
+    },
+    "Application" : {
+      "type" : "object",
+      "required" : [ "description", "name" ],
+      "properties" : {
+        "active" : {
+          "type" : "boolean",
+          "description" : "Indicates whether this application is currently active",
+          "default" : true
+        },
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Singula"
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "The primary Singula application"
+        }
+      },
+      "description" : "An application that is maintained by the application developers and is associated (through features and roles) with a tenant."
+    },
+    "ApplicationList" : {
+      "type" : "object",
+      "properties" : {
+        "applications" : {
+          "type" : "array",
+          "description" : "List of applications",
+          "items" : {
+            "$ref" : "#/definitions/Application"
+          }
+        }
+      }
+    },
+    "Feature" : {
+      "type" : "object",
+      "required" : [ "applicationId", "description", "name" ],
+      "properties" : {
+        "active" : {
+          "type" : "boolean",
+          "description" : "Indicates whether this feature is currently active",
+          "default" : true
+        },
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "applicationId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "Name of the feature, which must be unique across the application."
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "beta" : {
+          "type" : "boolean",
+          "description" : "Marked true if the feature is currently still in beta phase",
+          "default" : false
+        }
+      },
+      "description" : "An application feature that is controlled by the application developers and used within roles."
+    },
+    "FeatureList" : {
+      "type" : "object",
+      "properties" : {
+        "features" : {
+          "type" : "array",
+          "description" : "List of features",
+          "items" : {
+            "$ref" : "#/definitions/Feature"
+          }
+        }
+      }
+    },
+    "Role" : {
+      "type" : "object",
+      "required" : [ "description", "name" ],
+      "properties" : {
+        "active" : {
+          "type" : "boolean",
+          "description" : "Indicates whether this role is currently active",
+          "default" : true
+        },
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "CRM Read/Only",
+          "description" : "Name of this role, which must be unique per tenant"
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "Read-only users in CRM",
+          "description" : "Description of role"
+        },
+        "featureIds" : {
+          "type" : "array",
+          "description" : "List of features IDs. Each feature ID must already exist.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      }
+    },
+    "RoleSearch" : {
+      "type" : "object",
+      "properties" : {
+        "roleIds" : {
+          "type" : "array",
+          "description" : "A list of IDs of role. Matching is on any role ID in the list.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "CRM users",
+          "description" : "Name or part of the name of the role (case insensitive)"
+        }
+      },
+      "description" : "Role details used for search"
+    },
+    "PagedRoleList" : {
+      "type" : "object",
+      "properties" : {
+        "currentPage" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The current page of results"
+        },
+        "pageSize" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "Page size of returned results"
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "The role details",
+          "items" : {
+            "$ref" : "#/definitions/Role"
+          }
+        },
+        "numberOfPages" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The total number of result pages of the current page size"
+        },
+        "searchId" : {
+          "type" : "string",
+          "description" : "If a searchId was supplied in the request, it is returned here in the response"
+        },
+        "totalResults" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The total number of available results"
+        }
+      },
+      "description" : "List of roles retrieved"
+    },
+    "RoleAccessValidation" : {
+      "type" : "object",
+      "required" : [ "roleSearchType" ],
+      "properties" : {
+        "roleSearchType" : {
+          "type" : "string",
+          "enum" : [ "ROLEID", "ROLENAME" ]
+        },
+        "roleId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851",
+          "description" : "Required when roleSearchType == ROLEID"
+        },
+        "applicationId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851",
+          "description" : "Required when roleSearchType == ROLENAME"
+        },
+        "roleName" : {
+          "type" : "string",
+          "example" : "CRM Users",
+          "description" : "Required when roleSearchType == ROLENAME"
+        }
+      },
+      "description" : "A request to verify whether a user has access to a specific role. Note that you must supply roleSearchType and then either the roleId  or the applicationId and roleName, depending on the search type."
+    },
+    "Tenant" : {
+      "type" : "object",
+      "required" : [ "description", "name" ],
+      "properties" : {
+        "active" : {
+          "type" : "boolean",
+          "description" : "Indicates whether this tenant is currently active",
+          "default" : true
+        },
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "XYZ Broadcasting, Inc."
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "Production environment for XYZ Broadcasting, Inc."
+        },
+        "providerName" : {
+          "type" : "string",
+          "example" : "MyActiveDirectory"
+        },
+        "applicationIds" : {
+          "type" : "array",
+          "description" : "A list of IDs of the applications associated with the tenant. Any application supplied here must already exist.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        }
+      },
+      "description" : "This is very much a work-in-progress structure and will later contain details around authentication, configuration, expiration etc..."
+    },
+    "TenantSearch" : {
+      "type" : "object",
+      "properties" : {
+        "tenantIds" : {
+          "type" : "array",
+          "description" : "A list of IDs of tenants. Matching is on any tenant ID in the list.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "applicationIds" : {
+          "type" : "array",
+          "description" : "A list of application IDs to search for matching tenants. Matching is  on any application ID in the list.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Xyz Inc.",
+          "description" : "Name or part of the name of the tenant (case insensitive)"
+        }
+      },
+      "description" : "Tenant details used for search"
+    },
+    "PagedTenantList" : {
+      "type" : "object",
+      "properties" : {
+        "currentPage" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The current page of results"
+        },
+        "pageSize" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "Page size of returned results"
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "The tenant details",
+          "items" : {
+            "$ref" : "#/definitions/Tenant"
+          }
+        },
+        "numberOfPages" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The total number of result pages of the current page size"
+        },
+        "searchId" : {
+          "type" : "string",
+          "description" : "If a searchId was supplied in the request, it is returned here in the response"
+        },
+        "totalResults" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The total number of available results"
+        }
+      },
+      "description" : "List of tenants retrieved"
+    },
+    "User" : {
+      "type" : "object",
+      "required" : [ "email", "fullName", "roleId", "tenantId" ],
+      "properties" : {
+        "active" : {
+          "type" : "boolean",
+          "description" : "Indicates whether this user is currently active and able to access the system",
+          "default" : true
+        },
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "tenantId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "The tenant that this user is associated with. A user can only be  associated with a tenant once, but may have additional user records for additional tenants."
+        },
+        "fullName" : {
+          "type" : "string",
+          "description" : "User's full name"
+        },
+        "firstName" : {
+          "type" : "string",
+          "description" : "User's first name"
+        },
+        "lastName" : {
+          "type" : "string",
+          "description" : "User's last name"
+        },
+        "email" : {
+          "type" : "string",
+          "format" : "email",
+          "description" : "Email address"
+        },
+        "roleId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "description" : "Role ID assigned to user"
+        }
+      },
+      "description" : "A user is identified as a remote directory reference that is associated with a tenant. Users may be associated with multiple tenants, which is accomplished by having multiple user records per remote directory reference."
+    },
+    "UserSearch" : {
+      "type" : "object",
+      "properties" : {
+        "userIds" : {
+          "type" : "array",
+          "description" : "A list of IDs of user. Matching is on any user ID in the list.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "roleIds" : {
+          "type" : "array",
+          "description" : "A list of IDs of role. Matching is on any role ID in the list.",
+          "items" : {
+            "type" : "string",
+            "format" : "uuid"
+          }
+        },
+        "fullName" : {
+          "type" : "string",
+          "example" : "Smith",
+          "description" : "Name or part of the name of the user (case insensitive)"
+        },
+        "firstName" : {
+          "type" : "string",
+          "example" : "Smi",
+          "description" : "All or part of the first name of the user (case insensitive)"
+        },
+        "lastName" : {
+          "type" : "string",
+          "example" : "Joh",
+          "description" : "All or part of the last name of the user (case insensitive)"
+        },
+        "email" : {
+          "type" : "string",
+          "format" : "email",
+          "example" : "john.doe@sample.com",
+          "description" : "The full, or starts-with component of an email address (case insensitive)"
+        }
+      },
+      "description" : "User details used for search. Note that searches are constrained to  the tenant context."
+    },
+    "PagedUserList" : {
+      "type" : "object",
+      "properties" : {
+        "currentPage" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The current page of results"
+        },
+        "pageSize" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "Page size of returned results"
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "The user details",
+          "items" : {
+            "$ref" : "#/definitions/User"
+          }
+        },
+        "numberOfPages" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The total number of result pages of the current page size"
+        },
+        "searchId" : {
+          "type" : "string",
+          "description" : "If a searchId was supplied in the request, it is returned here in the response"
+        },
+        "totalResults" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The total number of available results"
+        }
+      },
+      "description" : "List of users retrieved"
+    }
+  }
+}
