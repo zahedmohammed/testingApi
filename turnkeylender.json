@@ -1,0 +1,2452 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Turnkey Lender Public API ",
+    "version" : "1.2",
+    "title" : "Turnkey Lender Public API "
+  },
+  "basePath" : "/PublicApi/v1-2",
+  "tags" : [ {
+    "name" : "User",
+    "description" : "Common operations for all Turnkey Lender user types"
+  }, {
+    "name" : "Customer",
+    "description" : "Provides operations that allow creation of a custom Customer Portal"
+  }, {
+    "name" : "Investor",
+    "description" : "Provides operations that allow creation of a custom Investor Portal"
+  }, {
+    "name" : "Files",
+    "description" : "Uploading and downloading files"
+  }, {
+    "name" : "Dictionary",
+    "description" : "Provides operations for dictionaries"
+  } ],
+  "schemes" : [ "http" ],
+  "paths" : {
+    "/User/Login" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Login user",
+        "description" : "Checks if a user with the specified login and password exists. If yes, returns the authentication token that must be provided to other methods that require user authentication (`tkLender_UserAuthToken` header parameter).",
+        "parameters" : [ {
+          "name" : "login",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Login successful",
+            "schema" : {
+              "$ref" : "#/definitions/UserLoginResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/User/ChangePassword" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Change Password",
+        "description" : "Change password for the current user",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "currentPassword",
+          "in" : "query",
+          "description" : "Current password for the user",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "newPassword",
+          "in" : "query",
+          "description" : "A desired new password for the user",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Password changed successfully",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/User/RequestPasswordReset" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Request Change Password",
+        "description" : "Request one-time change of the user's password. As a result of this method, (1) the password reset link is generated and (2) an email with the password reset link is sent to the user’s address defined in the `email` input parameter. The URL for the link is taken from the `confirmationUrl` input parameter.",
+        "parameters" : [ {
+          "name" : "email",
+          "in" : "query",
+          "description" : "Address to send a confirmation email to",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "confirmationUrl",
+          "in" : "query",
+          "description" : "URL of the password change confirmation page. The URL must accept the `code` input parameter.  If this parameter is missing, a URL to the default confirmation page is be generated.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Request for password reset is successful",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/User/ResetPassword" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Reset Password",
+        "description" : "Assumes that the user followed the password reset link (see /User/RequestPasswordReset), entered the new password and submitted the form. As a result of this method, the current user’s password is changed to the desired new password.",
+        "parameters" : [ {
+          "name" : "email",
+          "in" : "query",
+          "description" : "Confirmation user email that is sent as input parameter with new password",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "newPassword",
+          "in" : "query",
+          "description" : "A desired new password for the user",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "code",
+          "in" : "query",
+          "description" : "Auto generated code that was sent to user email in confirmation url.",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Password changed successfully",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Register" : {
+      "post" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Create a new customer account",
+        "description" : "Creates a new customer account.",
+        "parameters" : [ {
+          "name" : "login",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Investor registered successfully",
+            "schema" : {
+              "$ref" : "#/definitions/UserLoginResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/CreditProducts" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Get the list of credit products",
+        "description" : "Provides information about credit products in the system. To issue a new loan, you will require the `Name` property of the credit product. Other properties can be used to help the end user specify correct loan terms.",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns the array of `CreditProduct` objects",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/CreditProduct"
+              }
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/Create" : {
+      "post" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Create a new loan for the customer",
+        "description" : "Creates a new loan application for a given customer. Loan terms are provided as parameters.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "Amount",
+          "in" : "query",
+          "description" : "A requested loan amount",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "name" : "Term",
+          "in" : "query",
+          "description" : "A requested loan duration in days, months, weeks (depending on the Credit Product settings)",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "CreditProduct",
+          "in" : "query",
+          "description" : "The name of the credit product. The list of all available credit products can be obtained using the `Customer\\CreditProducts` request.",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. The loan is created",
+            "schema" : {
+              "$ref" : "#/definitions/LoanResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/{loanId}/Process" : {
+      "post" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Send loan for processing",
+        "description" : "Sumbits a loan for automatic processing (scoring). This method should be called once all required customer details are gathered",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "comments",
+          "in" : "query",
+          "description" : "Optional comments that will be saved in the loan processing history",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns the ID of the loan processed (`loanId`)",
+            "schema" : {
+              "allOf" : [ {
+                "description" : "The `LoanId` property contains the same value as `loanId` input parameter"
+              }, {
+                "$ref" : "#/definitions/LoanResults"
+              } ]
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Get Active Loans",
+        "description" : "Returns information about all active loans issued by the authenticated customer. This list doesn't include closed (rejected, paid off, written off, etc.) loans",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns the list of `LoanDetails` objects",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/LoanDetails"
+              }
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/{loanId}" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Get Loan Details",
+        "description" : "Returns information about a single loan issued by the authenticated customer.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns the  `LoanDetails` objects",
+            "schema" : {
+              "$ref" : "#/definitions/LoanDetails"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/AccountSummary" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Get Customer Account Summary",
+        "description" : "Returns a summary for the current customer's account.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns a `CustomerAccountSummary` object",
+            "schema" : {
+              "$ref" : "#/definitions/CustomerAccountSummary"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Details" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Get Customer Details",
+        "description" : "Returns complete information about the authenticated customer.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns a `CustomerDetails` object",
+            "schema" : {
+              "$ref" : "#/definitions/CustomerDetails"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Update Customer Details",
+        "description" : "Changes personal details for the authenticated customer.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "details",
+          "description" : "JSON composed according to the structure of the `CustomerDetails` format",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CustomerDetails"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Customer details updated successfully",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/{loanId}/Rollover" : {
+      "post" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Request Rollover",
+        "description" : "Requests rollover of a specified loan.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "rolloverTerm",
+          "in" : "query",
+          "description" : "Rollover term formatted as string. See `TermString` model for details",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Rollover request submitted",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Cancel rollover request",
+        "description" : "Cancel rollover request for a specified loan.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Rollover request cancelled",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/{loanId}/Rollover/Allowed" : {
+      "get" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Check if rollover can be requested",
+        "description" : "Checks is rollover can be requested for a certain loan",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Rollover is allowed if `Success` equals `true`",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/{loanId}/Collaterals" : {
+      "post" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Add Collateral",
+        "description" : "Add a new collateral item to then loan",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Collateral details",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CollateralDetails"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Collateral added successfully. Returns a new collateral object.",
+            "schema" : {
+              "$ref" : "#/definitions/CollateralDetails"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Update Collateral",
+        "description" : "Update the details of an existing collateral for the loan",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "collateral details",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CollateralDetails"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Collateral updated successfully",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Customer/Loans/{loanId}/Collaterals/{collateralId}" : {
+      "delete" : {
+        "tags" : [ "Customer" ],
+        "summary" : "Delete Collateral",
+        "description" : "Removes a specified collateral from the loan",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "loanId",
+          "in" : "path",
+          "description" : "Unique internal identifier of the loan",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "name" : "collateralId",
+          "in" : "path",
+          "description" : "Unique identifier of the collateral",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Collateral removed",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/Register" : {
+      "post" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Create a new Investor account",
+        "description" : "Creates a new Investor account",
+        "parameters" : [ {
+          "name" : "login",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "query",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Investor registered successfully",
+            "schema" : {
+              "$ref" : "#/definitions/UserLoginResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/PersonalDetails" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get investor's personal details",
+        "description" : "Returns personal details of the authenticated investor",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/InvestorPersonalDetails"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Update investor's personal details",
+        "description" : "Updates personal details of the authenticated investor",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "details",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/InvestorPersonalDetails"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Investor details updated successfully. Returns the updated `InvestorPersonalDetails` object",
+            "schema" : {
+              "$ref" : "#/definitions/InvestorPersonalDetails"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/Opportunities" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get the list of investment opportunities",
+        "description" : "Returns the list of investment opportunities (loan applications awaiting investments)",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns an array of `InvestmentOpportunity` objects",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/InvestmentOpportunity"
+              }
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/Bids" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get the list of bids",
+        "description" : "Returns the list of investment bids submitted by the authenticated Investor",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns the array of `InvestmentBid` objects",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/InvestmentBid"
+              }
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/Bids/Submit" : {
+      "post" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Submit a bid",
+        "description" : "Submits a new loan investment bid by the name of the authenticated Investor",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "data",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/data"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Bid submitted successfully",
+            "schema" : {
+              "$ref" : "#/definitions/InvestmentBid"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/Bids/{id}" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get investment bid details",
+        "description" : "Returns the details of a specified investment bid that was submitted by the authenticated Investor",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Bid identifier",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/InvestmentBid"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Modify a bid",
+        "description" : "Changes the amount of a submitted bid",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Bid identifier",
+          "required" : true,
+          "type" : "integer"
+        }, {
+          "in" : "body",
+          "name" : "settings",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/BidSettings"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Bid modified successfully",
+            "schema" : {
+              "$ref" : "#/definitions/InvestmentBid"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Withdraw a bid",
+        "description" : "Withdraw a bid",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "ID of a bid to withdraw",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Bid withdrawn successfully",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/ActiveInvestments" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get Active Investments",
+        "description" : "Returns the list of active investments. `Active investments` here means investments for currently disbursed loans.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns a list of `ActiveInvestment` objects",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ActiveInvestment"
+              }
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/ActiveInvestments/{id}" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get Investment Details",
+        "description" : "Returns information about a specified active investment made by the authenticated Investor",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "required" : true,
+          "type" : "integer"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/ActiveInvestment"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Investor/Preferences" : {
+      "get" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Get Preferences",
+        "description" : "Returns preferences of the authenticated investor's account",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/InvestorPreferences"
+            }
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      },
+      "put" : {
+        "tags" : [ "Investor" ],
+        "summary" : "Updates Preferences",
+        "description" : "Updates authenticated investor's account preferences",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "preferences",
+          "description" : "New investor preferences data",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/InvestorPreferences"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "schema" : {
+              "$ref" : "#/definitions/GeneralApiResults"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Files/Upload" : {
+      "post" : {
+        "tags" : [ "Files" ],
+        "summary" : "Upload File",
+        "description" : "Uploads a new file to the Turnkey Lender database",
+        "consumes" : [ "multipart/form-data" ],
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "file",
+          "in" : "formData",
+          "description" : "Document file to be uploaded",
+          "required" : true,
+          "type" : "file"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. The `Data` property contains an `UploadedFile` object. The `Id` property of this object can be used to attach the file to another entity (e.g. `CustomerDetails.Docs`)",
+            "schema" : {
+              "$ref" : "#/definitions/UploadedFile"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Files/Download" : {
+      "get" : {
+        "tags" : [ "Files" ],
+        "summary" : "Download Document",
+        "description" : "Retrieves a loan document from the server",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "docId",
+          "in" : "query",
+          "description" : "Internal identifier of the file",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns a binary file of the requested document",
+            "schema" : {
+              "type" : "file"
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    },
+    "/Dictionary/GetValues" : {
+      "get" : {
+        "tags" : [ "Dictionary" ],
+        "summary" : "Download Document",
+        "description" : "Returns list of dictionary names with their values.",
+        "parameters" : [ {
+          "name" : "tkLender_UserAuthToken",
+          "in" : "header",
+          "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "names",
+          "description" : "Names of dictionaries",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/names"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK. Returns a binary file of the requested document",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "Name" : {
+                  "type" : "string"
+                },
+                "Items" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/definitions/DictionaryItem"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+          },
+          "403" : {
+            "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+          }
+        },
+        "security" : [ {
+          "api_key" : [ ]
+        } ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "api_key" : {
+      "description" : "The `tkLender_ApiKey` parameter must be added to the `headers` section of the request",
+      "type" : "apiKey",
+      "name" : "tkLender_ApiKey",
+      "in" : "header"
+    }
+  },
+  "definitions" : {
+    "GeneralApiResults" : {
+      "type" : "object",
+      "properties" : {
+        "Success" : {
+          "type" : "boolean",
+          "description" : "'true' if operation was successful, 'false' otherwise"
+        },
+        "Message" : {
+          "type" : "string",
+          "example" : "Operation successful",
+          "description" : "Information or error message, depending on the value of the 'Success' property"
+        }
+      }
+    },
+    "UserLoginResults" : {
+      "type" : "object",
+      "properties" : {
+        "AuthToken" : {
+          "type" : "string",
+          "description" : "token that can be sent in the tkLender_UserAuthToken header for requests where user authentication is required"
+        },
+        "UserType" : {
+          "type" : "string",
+          "description" : "type of the authenticated user. This property may be analyzed on the client side to make sure that authenticated user belongs to the required type (role), or implement conditional routing depending on the user type\nPossible values:\n  * `Customer`\n  * `Investor`\n",
+          "enum" : [ "Customer", "Investor" ]
+        },
+        "Success" : {
+          "type" : "boolean"
+        },
+        "Message" : {
+          "type" : "string"
+        }
+      }
+    },
+    "LoanTerms" : {
+      "type" : "object",
+      "properties" : {
+        "Amount" : {
+          "type" : "number",
+          "example" : 1000.0,
+          "description" : "Requested loan amount"
+        },
+        "Period" : {
+          "type" : "string",
+          "example" : "10d",
+          "description" : "Requested loan duration formatted as a string. Format examples: '10d' (10 days), '3w' (3 weeks), '6m' (6 months)"
+        },
+        "InterestRate" : {
+          "type" : "number",
+          "example" : 4.0,
+          "description" : "Interest rate of the loan (%)"
+        }
+      }
+    },
+    "InvestorPersonalDetails" : {
+      "type" : "object",
+      "properties" : {
+        "FullName" : {
+          "type" : "string",
+          "example" : "John Doe"
+        },
+        "Phone" : {
+          "type" : "string",
+          "example" : "5551321234"
+        },
+        "Email" : {
+          "type" : "string",
+          "example" : "my-email@google.com",
+          "description" : "Email address that is used to send notifications to the investor"
+        }
+      },
+      "description" : "Investor's personal details. Additional fields may be added, as Turnkey Lender gets customized to the needs of the actual customer"
+    },
+    "InvestmentOpportunity" : {
+      "type" : "object",
+      "properties" : {
+        "Id" : {
+          "type" : "integer",
+          "example" : 12,
+          "description" : "Internal loan identifier"
+        },
+        "CustomerName" : {
+          "type" : "string",
+          "example" : "John Doe"
+        },
+        "LoanTerms" : {
+          "$ref" : "#/definitions/LoanTerms"
+        },
+        "InvestmentInterestRate" : {
+          "type" : "number",
+          "example" : 3.0,
+          "description" : "Interest rate (%) for investors (usually is different from the basic loan Interest Rate)."
+        },
+        "ToFundAmount" : {
+          "type" : "number",
+          "example" : 600.0,
+          "description" : "The amount available for funding (may be equal or less then `LoanAmount`)"
+        },
+        "FundedAmount" : {
+          "type" : "number",
+          "example" : 400.0,
+          "description" : "Total amount already funded for this loan application"
+        },
+        "Risk" : {
+          "$ref" : "#/definitions/RiskInfo"
+        },
+        "MyBid" : {
+          "$ref" : "#/definitions/InvestmentBid"
+        }
+      },
+      "description" : "Investment opportunity details ('investment opportunity' is a loan application waiting for investments)"
+    },
+    "RiskInfo" : {
+      "properties" : {
+        "Score" : {
+          "type" : "integer",
+          "example" : 355,
+          "description" : "Risk score value"
+        },
+        "RiskLevel" : {
+          "$ref" : "#/definitions/RiskLevel"
+        }
+      },
+      "description" : "Results of Turnkey Lender's risk analysis of the borrower"
+    },
+    "InvestmentBid" : {
+      "properties" : {
+        "Id" : {
+          "type" : "integer",
+          "example" : 10,
+          "description" : "Internal identifier of the bid. Can be used to identify the bid, read its details, modify or withdraw the bid"
+        },
+        "Amount" : {
+          "type" : "number",
+          "example" : 500.0,
+          "description" : "The amount of funds invested into the loan"
+        },
+        "InterestRate" : {
+          "type" : "number",
+          "example" : 2.0,
+          "description" : "Interest rate (%) for the investment"
+        },
+        "LoanId" : {
+          "type" : "integer",
+          "example" : 12,
+          "description" : "Internal identifier of the loan in Turnkey Lender"
+        }
+      },
+      "description" : "Information about investment bid made by the current investor"
+    },
+    "BidSettings" : {
+      "type" : "object",
+      "properties" : {
+        "Amount" : {
+          "type" : "number"
+        }
+      }
+    },
+    "ActiveInvestment" : {
+      "properties" : {
+        "Id" : {
+          "type" : "integer",
+          "example" : 5,
+          "description" : "Investment identifier"
+        },
+        "CreationDate" : {
+          "$ref" : "#/definitions/DateTimeString"
+        },
+        "CustomerName" : {
+          "type" : "string",
+          "example" : "John Doe"
+        },
+        "InvestedAmount" : {
+          "type" : "number",
+          "example" : 5000.0,
+          "description" : "The amount of funds invested into the loan"
+        },
+        "InterestRate" : {
+          "type" : "number",
+          "description" : "Interest rate (%) for the investment"
+        },
+        "LoanId" : {
+          "type" : "integer",
+          "description" : "Loan identifier"
+        },
+        "LoanTerms" : {
+          "$ref" : "#/definitions/LoanTerms"
+        },
+        "Returns" : {
+          "type" : "array",
+          "description" : "array of 'Return' objects. Each object contains information about a single repayment applied for a loan in terms of the current investment",
+          "items" : {
+            "$ref" : "#/definitions/InvestmentReturn"
+          }
+        }
+      },
+      "description" : "Information about an investment into currently active (disbursed) loan"
+    },
+    "InvestmentReturn" : {
+      "type" : "object",
+      "properties" : {
+        "Date" : {
+          "$ref" : "#/definitions/DateTimeString"
+        },
+        "TotalAmount" : {
+          "type" : "number",
+          "example" : 300.0,
+          "description" : "Total amount received by the investor, when the repayment was made. Consists of 'Principal' and 'Interest' parts"
+        },
+        "Principal" : {
+          "type" : "number",
+          "example" : 250.0,
+          "description" : "'Principal' part of the amount received by the investor, when this repayment was made"
+        },
+        "Interest" : {
+          "type" : "number",
+          "example" : 50.0,
+          "description" : "'Interest' part of the amount received by the investor, when this repayment was made"
+        }
+      }
+    },
+    "InvestorPreferences" : {
+      "type" : "object",
+      "properties" : {
+        "EnableNotifications" : {
+          "type" : "boolean",
+          "description" : "If 'true', Turnkey Lender will send notifications to this investor."
+        },
+        "DefaultRiskFilter" : {
+          "type" : "array",
+          "description" : "Specifies the risk levels appropriate for the current investor (can be used to filter investment opportunities by default)",
+          "items" : {
+            "$ref" : "#/definitions/RiskLevel"
+          }
+        }
+      }
+    },
+    "LoanResults" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/GeneralApiResults"
+      }, {
+        "properties" : {
+          "LoanId" : {
+            "type" : "integer",
+            "example" : 12,
+            "description" : "Internal loan identifier"
+          }
+        }
+      } ]
+    },
+    "LoanDetails" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "$ref" : "#/definitions/LoanStatus"
+        },
+        "Schedule" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/LoanDetails_Schedule"
+          }
+        },
+        "Repayments" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/LoanRepayment"
+          }
+        },
+        "BadDebt" : {
+          "type" : "number",
+          "example" : 20.0,
+          "description" : "Amount of an overdue debt for this loan"
+        },
+        "DaysPastDue" : {
+          "type" : "integer",
+          "example" : 2,
+          "description" : "Number of days between a scheduled payment date and the current date"
+        },
+        "NextPaymentDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "description" : "Date of the next scheduled payment"
+          }, {
+            "$ref" : "#/definitions/DateTimeString"
+          } ]
+        },
+        "OutstandingBalance" : {
+          "type" : "number",
+          "example" : 122.0,
+          "description" : "A total outstanding amount payable by the customer"
+        },
+        "Term" : {
+          "type" : "integer",
+          "example" : 5,
+          "description" : "Loan duration"
+        },
+        "Amount" : {
+          "type" : "number",
+          "example" : 1000.0,
+          "description" : "Initial loan amount"
+        },
+        "LoanPeriodKind" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/LoanPeriodKind"
+          }, {
+            "description" : "Loan periodicity"
+          } ]
+        },
+        "CreationDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "description" : "A loan creation date and time"
+          }, {
+            "$ref" : "#/definitions/DateTimeString"
+          } ]
+        },
+        "Id" : {
+          "type" : "integer",
+          "example" : 20,
+          "description" : "Internal loan identifier"
+        },
+        "PublicId" : {
+          "type" : "string",
+          "description" : "A unique identifier displayed to end users in both Back Office and Front Office. May or may not match the `Id`. It's meant to be shown to the end user, not to identify the loan in this API"
+        },
+        "IsActive" : {
+          "type" : "boolean",
+          "description" : "`true` if the loan is disbursed and not closed"
+        },
+        "IsClosed" : {
+          "type" : "boolean",
+          "description" : "`true` if the loan is closed"
+        },
+        "CommissionEnabled" : {
+          "type" : "boolean",
+          "description" : "`true` if commissions (admin fee, origination fee, etc.) are enabled in the Credit Product selected for this loan"
+        },
+        "AppliedRollovers" : {
+          "type" : "integer",
+          "description" : "Number of rollovers already applied to this loan"
+        },
+        "Collaterals" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/CollateralDetails"
+          }
+        }
+      },
+      "description" : "Loan details"
+    },
+    "LoanRepayment" : {
+      "type" : "object",
+      "properties" : {
+        "OperationDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "Date when repayment took place"
+          } ]
+        },
+        "IsAutoCharge" : {
+          "type" : "boolean",
+          "description" : "`true` if repayment transaction was automatically initiated (charged) by the system"
+        },
+        "Amount" : {
+          "type" : "number",
+          "example" : 300.0,
+          "description" : "Total amount of the transaction"
+        },
+        "AmountLeft" : {
+          "type" : "number",
+          "description" : "Part of the repayment amount that isn't applied to repay the loan yet. Such situation may occur, if early repayments are disabled."
+        },
+        "Principal" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Amount applied to the loan Principal"
+        },
+        "Interest" : {
+          "type" : "number",
+          "example" : 20.0,
+          "description" : "Amount applied to the loan Interest"
+        },
+        "PastDueInterest" : {
+          "type" : "number",
+          "example" : 5.0,
+          "description" : "Amount applied to the loan Past Due Interest"
+        },
+        "LateFees" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Amount applied to the late fees"
+        },
+        "Commissions" : {
+          "type" : "number",
+          "example" : 5.0,
+          "description" : "Amount applied to commissions (admin. fee, origination fee, etc.)"
+        },
+        "PaymentType" : {
+          "type" : "string",
+          "enum" : [ "Check", "Cash", "DirectBankTransfer", "Card" ]
+        },
+        "Comments" : {
+          "type" : "string"
+        },
+        "Status" : {
+          "type" : "string",
+          "enum" : [ "TransactionApplied", "TransactionWaiting", "TransactionPartiallyApplied" ]
+        },
+        "IsSuccessful" : {
+          "type" : "boolean",
+          "description" : "`true` if transaction is completed successfully. `false` in case of an error"
+        }
+      },
+      "description" : "Information on loan repayment transaction"
+    },
+    "CustomerDetails" : {
+      "type" : "object",
+      "properties" : {
+        "LastName" : {
+          "type" : "string",
+          "example" : "John Everett Smith",
+          "description" : "Customer's full name"
+        },
+        "FullName" : {
+          "type" : "string",
+          "example" : "John Everett Smith",
+          "description" : "Customer’s full name"
+        },
+        "BirthDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "Customer’s birthdate"
+          } ]
+        },
+        "Email" : {
+          "type" : "string",
+          "example" : "my_email@google.com",
+          "description" : "Customer’s email"
+        },
+        "CreationDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "Date and time when customer’s application was created"
+          } ]
+        },
+        "LoanReason" : {
+          "type" : "integer",
+          "description" : "Reason to apply for a loan. Available values:\n  * `1` - Car purchase\n  * `2` - Consumer purchase\n  * `3` - Debt repayment\n  * `4` - Education\n  * `5` - Holiday\n  * `6` - Medical bills\n  * `7` - Other\n  * `8` - Purchasing vehicle\n  * `9` - Venture capital\n  * `10` - Wedding costs\n"
+        },
+        "PlaceOfBirth" : {
+          "type" : "string",
+          "example" : "Vellington",
+          "description" : "Customer's place of birth"
+        },
+        "SocialSecurityNumber" : {
+          "type" : "string",
+          "example" : "1111111111111111",
+          "description" : "National ID number 16 digits"
+        },
+        "Gender" : {
+          "type" : "integer",
+          "description" : "MaritalStatus type code. Available values:\n  * `1` - Male\n  * `2` - Female\n"
+        },
+        "MaritalStatus" : {
+          "type" : "integer",
+          "description" : "MaritalStatus type code. Available values:\n  * `1` - Married\n  * `2` - Single\n  * `3` - Widower\n  * `4` - Divorced\n  * `5` - Widow\n"
+        },
+        "NumberOfChildren" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "Number of dependents"
+        },
+        "SpouseFullName" : {
+          "type" : "string",
+          "example" : "Joanna Everett Smith",
+          "description" : "Wife / husband name as stated in National ID<"
+        },
+        "SpousePlaceOfBirth" : {
+          "type" : "string",
+          "example" : "Vellington",
+          "description" : "Spouse Place Of Birth"
+        },
+        "SpouseBirthDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "Spouse's date of birth"
+          } ]
+        },
+        "SpouseSocialSecurityNumber" : {
+          "type" : "string",
+          "example" : "1111111111111111",
+          "description" : "Spouse’s national ID number 16 digits"
+        },
+        "Address" : {
+          "type" : "string",
+          "example" : "Vellington 23",
+          "description" : "Borrower's current address"
+        },
+        "Phone" : {
+          "type" : "string",
+          "example" : "5832501592",
+          "description" : "Phone number"
+        },
+        "AlternativePhone" : {
+          "type" : "string",
+          "example" : "5832501592",
+          "description" : "Mobile number"
+        },
+        "ResidentialStatus" : {
+          "type" : "integer",
+          "description" : "Residential status Available values:\n  * `1` - Own\n  * `2` - Family House\n  * `3` - Belongs to company\n  * `4` - Rent annually\n  * `5` - Rent monthly    \n"
+        },
+        "RealEstateUsedAsColletaral" : {
+          "type" : "integer",
+          "description" : "Has been used for collateral elsewhere? Available values:\n  * `1` - Yes\n  * `2` - No\n"
+        },
+        "RentUntilDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "EUntil date"
+          } ]
+        },
+        "LivedSinceYear" : {
+          "type" : "integer",
+          "description" : "Has lived in the address since year\n"
+        },
+        "Education" : {
+          "type" : "integer",
+          "description" : "Education type code. Available values:\n  * `1` - Elementary School\n  * `2` - Junior High School\n  * `3` - Senior High School\n  * `4` - Diploma\n  * `5` - Academy\n  * `6` - Degree\n  * `7` - Master\n  * `8` - Doctoral\n"
+        },
+        "CarOwner" : {
+          "type" : "integer",
+          "description" : "Has been used for collateral elsewhere? Available values:\n  * `1` - Yes\n  * `2` - No\n"
+        },
+        "EmergencyContactPerson" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/CustomerContactPerson"
+          }, {
+            "description" : "Emergency Contact Person"
+          } ]
+        },
+        "EmploymentStatus" : {
+          "type" : "integer",
+          "description" : "Employment status Available values:\n  * `1` - Senior Officials and Managers\n  * `2` - Professionals\n  * `3` - Clerical support workers\n  * `4` - Service and sales workers\n  * `5` - Production and related workers\n  * `6` - Associate Professionals and Technicians\n  * `7` - Farmers, forestry workers and fishermen\n  * `8` - Plant and machine operators and assemblers\n  * `9` - Laborers and unskilled workers\n  * `10` - Other\n"
+        },
+        "Employer" : {
+          "type" : "string",
+          "example" : "Google",
+          "description" : "Employer"
+        },
+        "Industry" : {
+          "type" : "integer",
+          "description" : "Industry Available values:\n  * `1` - Agriculture\n  * `2` - Construction\n  * `3` - Manufacturing\n  * `4` - Mining & Utilities\n  * `5` - Financial, Insurance and Business Services\n  * `6` - General Services\n  * `7` - Other\n"
+        },
+        "Position" : {
+          "type" : "integer",
+          "description" : "Position Available values:\n  * `1` - Head Organization\n  * `2` - Deputy Head\n  * `3` - Other Senior Falsity\n  * `4` - Specialist \n  * `5` - Worker\n  * `6` - Support Staff\n"
+        },
+        "SizeCompany" : {
+          "type" : "string",
+          "example" : "123",
+          "description" : "Size of the Company"
+        },
+        "HireDurationInMonths" : {
+          "type" : "integer",
+          "description" : "Employment /Enterpreneur duration within the last company\n"
+        },
+        "CompanyAddress" : {
+          "type" : "string",
+          "example" : "Vellington 23",
+          "description" : "Company / Institution address"
+        },
+        "WorkPhone" : {
+          "type" : "string",
+          "example" : "5832501592",
+          "description" : "Work phone"
+        },
+        "GrossMonthlyIncome" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Gross Monthly Income"
+        },
+        "MonthlyAdditionalIncome" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Additional income per month"
+        },
+        "MonthlyExpenses" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Monthly Expenses"
+        },
+        "MKCostGoodsService" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Cost of goods/service"
+        },
+        "MKEmployeeSalary" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Employee’s Salary"
+        },
+        "MKRentExpenses" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Rent expenses"
+        },
+        "MKTransportationUtilitiesEtc" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Transportation, utilities, etc."
+        },
+        "MKPaymentExistingLoans" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Payment for existing loans"
+        },
+        "HasCreditCard" : {
+          "type" : "integer",
+          "description" : "Credit card owner Available values:\n  * `1` - Yes\n  * `2` - No\n"
+        },
+        "Bank" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/Bank"
+          }, {
+            "description" : "Emergency Contact Person"
+          } ]
+        },
+        "WifeHusbandOccupation" : {
+          "type" : "integer",
+          "description" : "Wife / husband occupation Available values:\n  * `1` - Senior Officials and Managers\n  * `2` - Professionals\n  * `3` - Clerical support workers\n  * `4` - Service and sales workers\n  * `5` - Production and related workers\n  * `6` - Associate Professionals and Technicians\n  * `7` - Farmers, forestry workers and fishermen\n  * `8` - Plant and machine operators and assemblers\n  * `9` - Laborers and unskilled workers\n  * `10` - Other\n"
+        },
+        "WifeHusbandEmployerName" : {
+          "type" : "string",
+          "example" : "Google",
+          "description" : "Company / Institution name"
+        },
+        "WifeHusbandIndustry" : {
+          "type" : "integer",
+          "description" : "Industry Available values:\n  * `1` - Agriculture\n  * `2` - Construction\n  * `3` - Manufacturing\n  * `4` - Mining & Utilities\n  * `5` - Financial, Insurance and Business Services\n  * `6` - General Services\n  * `7` - Other\n"
+        },
+        "WifeHusbandCompanySize" : {
+          "type" : "string",
+          "example" : "123",
+          "description" : "Size of the Company"
+        },
+        "WifeHusbandDivision" : {
+          "type" : "string",
+          "example" : "Division",
+          "description" : "Division"
+        },
+        "WifeHusbandHireDurationInYears" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "Employment /Enterpreneur duration within the last company"
+        },
+        "WifeHusbandCompanyAddress" : {
+          "type" : "string",
+          "example" : "Company / Institution address",
+          "description" : "Company / Institution address"
+        },
+        "WifeHusbandWorkPhone" : {
+          "type" : "string",
+          "example" : "5832501592",
+          "description" : "Work phone"
+        },
+        "Docs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/CustomerDetails_Docs"
+          }
+        }
+      },
+      "description" : "Contains common customer details. This object contains a limited set of properties that are common for all Turnkey Lender editions and custom instances. Each custom project adds more properties to this structure."
+    },
+    "Bank" : {
+      "type" : "object",
+      "properties" : {
+        "AccountHolderName" : {
+          "type" : "string",
+          "example" : "BNP",
+          "description" : "Name"
+        },
+        "AccountNumber" : {
+          "type" : "string",
+          "example" : "123132323132",
+          "description" : "Account Number  (Min 5 digitsMax 16 digits)"
+        },
+        "BankName" : {
+          "type" : "string",
+          "example" : "BANK RAKYAT INDONESIA (BRI)",
+          "description" : "Bank Name"
+        },
+        "Branch" : {
+          "type" : "string",
+          "example" : "Branch",
+          "description" : "Branch"
+        },
+        "TypeOfAccount" : {
+          "type" : "integer",
+          "description" : "Account type Available values:\n  * `1` - Current account\n  * `2` - Deposit\n  * `3` - Saving\n"
+        }
+      }
+    },
+    "CustomerContactPerson" : {
+      "type" : "object",
+      "properties" : {
+        "FullName" : {
+          "type" : "string",
+          "example" : "Irirna Karina",
+          "description" : "Full Name"
+        },
+        "Relationship" : {
+          "type" : "integer",
+          "description" : "Business type Available values:\n  * `1` - Parents\n  * `2` - Sibling\n  * `3` - Friend\n  * `4` - Other\n"
+        },
+        "RelationshipOther" : {
+          "type" : "string",
+          "example" : "123",
+          "description" : "Relationship Other"
+        },
+        "PhoneNumber" : {
+          "type" : "string",
+          "example" : "12313546777",
+          "description" : "Phone"
+        }
+      }
+    },
+    "UploadedFile" : {
+      "type" : "object",
+      "properties" : {
+        "Id" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/GUID"
+          }, {
+            "description" : "Internal document identifier"
+          } ]
+        },
+        "Name" : {
+          "type" : "string",
+          "example" : "MyFile.pdf",
+          "description" : "Document file name"
+        },
+        "Uploaded" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "Date and time of the upload document."
+          } ]
+        },
+        "UserUploaded" : {
+          "type" : "boolean",
+          "description" : "`true`, if document is uploded by the user."
+        }
+      },
+      "description" : "Information on uploaded documents."
+    },
+    "CustomerAccountStatus" : {
+      "type" : "string",
+      "description" : "Overall status of the customer account. \nPossible values:\n  * `WaitingForApproval` - the last submitted loan is waiting for approval by the underwriter\n  * `ActiveLoans` - all loans are active and are being paid on time\n  * `LoanRejected` - the last submitted loan has been rejected\n  * `PastDue` - one or more past due loans exist\n  * `LoanApproved` - the last submitted loan has been approved for disbursement\n  * `RolloverApproved` - a recently submitted rollover request has been approved\n  * `RolloverRejected` - a recently submitted rollover request has been rejected\n  * `Signing` - the last submitted loan is waiting for document signature by the customer\n",
+      "enum" : [ "WaitingForApproval", "ActiveLoans", "LoanRejected", "PastDue", "LoanApproved", "RolloverApproved", "RolloverRejected", "Signing" ]
+    },
+    "CustomerAccountSummary" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "$ref" : "#/definitions/CustomerAccountStatus"
+        },
+        "LoanId" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/LoanId"
+          }, {
+            "description" : "ID of the last loan"
+          } ]
+        },
+        "LoanCreationDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/DateTimeString"
+          }, {
+            "description" : "Creation date and time of the last loan"
+          } ]
+        },
+        "PastDueDebt" : {
+          "type" : "number",
+          "example" : 0.0,
+          "description" : "The amount of overdue debt for the last loan."
+        }
+      },
+      "description" : "Account Status contains values that reflect the current state of the customer's account"
+    },
+    "CreditProduct" : {
+      "type" : "object",
+      "properties" : {
+        "Id" : {
+          "type" : "string",
+          "example" : "4cc7c517-a781-4ecb-85a9-8cbbd5fc698d",
+          "description" : "credit product’s ID"
+        },
+        "Name" : {
+          "type" : "string",
+          "example" : "Payday Loans",
+          "description" : "credit product’s name"
+        },
+        "MinAmount" : {
+          "type" : "number",
+          "example" : 100.0,
+          "description" : "minimum loan amount available"
+        },
+        "MaxAmount" : {
+          "type" : "number",
+          "example" : 1000.0,
+          "description" : "maximum loan amount available"
+        },
+        "MinTerm" : {
+          "type" : "integer",
+          "example" : 1,
+          "description" : "minimum loan period available. The unit of measurement (days, weeks, months) depends on the credit product’s settings"
+        },
+        "MaxTerm" : {
+          "type" : "integer",
+          "example" : 5,
+          "description" : "maximum loan period available. The unit of measurement (days, weeks, months) depends on the credit product’s settings"
+        },
+        "UseCollateral" : {
+          "type" : "boolean",
+          "description" : "`true` if collaterals are enabled in the Credit Product"
+        },
+        "LoanPeriodKind" : {
+          "type" : "string",
+          "enum" : [ "Days", "Months", "Years", "Week", "Custom" ]
+        }
+      }
+    },
+    "DictionaryItem" : {
+      "type" : "object",
+      "properties" : {
+        "i" : {
+          "type" : "number",
+          "example" : 1.0,
+          "description" : "Dictionary Item identifier"
+        },
+        "v" : {
+          "type" : "string",
+          "description" : "Dictionary Item caption"
+        },
+        "IsDeleted" : {
+          "type" : "boolean",
+          "example" : false,
+          "description" : "Marks deleted item"
+        },
+        "type" : {
+          "type" : "string",
+          "description" : "Item type"
+        }
+      }
+    },
+    "CollateralDetails" : {
+      "properties" : {
+        "Id" : {
+          "type" : "string",
+          "description" : "Collateral ID. Leave this property empty while adding a new collateral (POST `Customer/Loans/{loanId}/Collaterals`)"
+        },
+        "Type" : {
+          "type" : "string",
+          "description" : "Collateral type. Collateral items of different types have different sets of properties. Customizing of Turnkey Lender, additional collateral types can be added.\nBelow is the list of built-in (default) collateral types:\n  * `vehicle` - a car owned\n  * `money` - a financial deposit\n  * `estate` - a real estate owned\n",
+          "enum" : [ "vehicle", "money", "estate" ]
+        },
+        "VehicleType" : {
+          "type" : "integer",
+          "description" : "[`vehicle` only] Vehicle type code.\nAvailable values:\n  * `0` - Car\n  * `1` - Truck\n  * `2` - Bus\n  * `3` - Other\n"
+        },
+        "Style" : {
+          "type" : "string",
+          "description" : "[`vehicle` only] Vehicle style name."
+        },
+        "Make" : {
+          "type" : "string",
+          "description" : "[`vehicle` only] Vehicle manufacturer."
+        },
+        "Model" : {
+          "type" : "string",
+          "description" : "[`vehicle` only] Vehicle model."
+        },
+        "Year" : {
+          "type" : "integer",
+          "description" : "[`vehicle` only] Year of issue."
+        },
+        "Mileage" : {
+          "type" : "string",
+          "description" : "[`vehicle` only] Vehicle mileage."
+        },
+        "Vin" : {
+          "type" : "string",
+          "description" : "[`vehicle` only] Vehicle VIN-code."
+        },
+        "Amount" : {
+          "type" : "number",
+          "description" : "[`money` only] Deposit amount."
+        },
+        "Currency" : {
+          "type" : "string",
+          "description" : "[`money` only] Deposit currency. Possible values: USD, EUR, CHF, CAD."
+        },
+        "AccountNumber" : {
+          "type" : "string",
+          "description" : "[`money` only] Number of deposit account."
+        },
+        "EstateType" : {
+          "type" : "integer",
+          "description" : "[`estate` only] Type of real estate. \nPossible values: \n  * 0 - Home\n  * 1 - Flat \n  * 2 - Warehouse.\n"
+        },
+        "Address" : {
+          "type" : "string",
+          "description" : "[`estate` only] Real estate full address."
+        },
+        "BuiltYear" : {
+          "type" : "integer",
+          "description" : "[`estate` only] Year of construction of real estate."
+        },
+        "Condition" : {
+          "type" : "integer",
+          "description" : "[`estate` only] Real estate condition. \nPossible values: \n  * 0 - Good \n  * 1 - Normal\n  * 2 - Needs Repairing\n"
+        },
+        "Size" : {
+          "type" : "integer",
+          "description" : "[`estate` only] Real estate size."
+        },
+        "Rooms" : {
+          "type" : "integer",
+          "description" : "[`estate` only] Number of rooms in real estate."
+        },
+        "ProofOwnershipId" : {
+          "type" : "string",
+          "description" : "[`estate` only] Proof Ownership ID."
+        }
+      },
+      "description" : "Collateral item details. This structure is used to present different collateral types. Properties for all collateral types are united in a single object, thus, when a specific item is filled in or returned, properties for other collateral types are left empty."
+    },
+    "LoanId" : {
+      "type" : "integer",
+      "description" : "internal identifier of the loan received from the `ApplyForLoan` method.",
+      "example" : 20
+    },
+    "LoanPeriodKind" : {
+      "type" : "string",
+      "enum" : [ "Days", "Months" ]
+    },
+    "TermString" : {
+      "type" : "string",
+      "format" : "{duration}{periodCode}",
+      "description" : "String encoded duration. Formed by a number (the duration value) and a letter (the code of periodicity units).\n  * `d` for days\n  * `w` for weeks\n  * `M` for months\n  \nExamples: `10d`(10 days), `3w`(3 weeks), `6m`(6 months)\n",
+      "example" : "2d"
+    },
+    "LoanStatus" : {
+      "type" : "string",
+      "description" : "Internal status of the loan.\nPossible values:\n  * `Origination` - Not all required customer details are gathered\n  * `Reprocessing` - The loan was returned for reprocessing by the Underwriter\n  * `AutoProcessing` - The scoring system is currently processing the loan\n  * `WaitingForApproval` - Loan processing is finished. The final decision cannot be made automatically and should be made by the Underwriter\n  * `Approved` - Loan processing is finished. The final decision was to approve the loan.\n  * `Rejected` - Loan processing is finished. The final decision was to reject the loan.\n  * `Active` - The loan is disbursed to the customer\n  * `PastDue` - The customer missed one or more payments\n  * `RolloverRequested` - The customer requested to roll over the loan\n  * `Collateral` - The collateral manager is currently processing the loan\n  * `DisbursementFailed` - Loan disbursement failed \n  * `DisbursementInProgress` - Loan disbursement is currently in progress\n  * `P2P_GatheringInvestments` - The loan is awaiting for investments\n  * `OfferConfirmation` - Then loan is awaiting for offer terms confirmation by the borrower\n  * `WaitingForCustomerSignature` - Loan origination is paused until required loan documents are signed by the borrower\n  * `Rejected` - Loan is rejected\n  * `Closed_Repaid` - Loan is fully repaid and closed\n  * `Closed_WrittenOff` - Loan is written off\n  * `Closed_Restructured` - Loan is restructured\n  * `Closed_AgreementDeclined` - Loan is closed because the borrower has declined the loan agreement\n  * `Closed_AgreementExpired` - Loan is closed because loan agreement signature has expired\n  \n",
+      "enum" : [ "Origination", "Reprocessing", "AutoProcessing", "WaitingForApproval", "Approved", "Rejected", "Active", "PastDue", "RolloverRequested", "Collateral", "DisbursementFailed", "DisbursementInProgress", "P2P_GatheringInvestments", "OfferConfirmation", "WaitingForCustomerSignature" ]
+    },
+    "InstallmentStatus" : {
+      "type" : "string",
+      "description" : "The status of the installment\nPossible values:\n  * `Scheduled` - installment due date is yet to come. No payment has been received so far.\n  * `PaidOnTime` - The installment is closed due to its full repayment. There were no late payments.\n  * `PaidEarly` - The installment is closed due to its full repayment. The installment was repaid before the due date.\n  * `PaidLate` - The installment is closed due to its full repayment. The installment was repaid after the due date.\n  * `Missed` - The installment is past due and is not repaid in full. \n"
+    },
+    "DateTimeString" : {
+      "type" : "string",
+      "format" : "YYYY-MM-DDTHH:mm:ss.sssZ",
+      "example" : "2017-06-24T00:00:00.00Z"
+    },
+    "GUID" : {
+      "type" : "string",
+      "example" : "2662a71c-5c43-463b-9c6d-decccc96ce83"
+    },
+    "RiskLevel" : {
+      "type" : "string",
+      "example" : "Medium",
+      "enum" : [ "Low", "Medium", "High", "Highest", "Default" ]
+    },
+    "inline_response_200" : {
+      "properties" : {
+        "LoanResults" : {
+          "$ref" : "#/definitions/LoanResults"
+        }
+      }
+    },
+    "data" : {
+      "properties" : {
+        "loanId" : {
+          "type" : "integer",
+          "description" : "Identifier of the loan to invest in"
+        },
+        "bid" : {
+          "$ref" : "#/definitions/BidSettings"
+        }
+      }
+    },
+    "names" : {
+      "type" : "object",
+      "properties" : {
+        "names" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "inline_response_200_1" : {
+      "properties" : {
+        "Name" : {
+          "type" : "string"
+        },
+        "Items" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/DictionaryItem"
+          }
+        }
+      }
+    },
+    "LoanDetails_Schedule" : {
+      "properties" : {
+        "Total" : {
+          "type" : "number",
+          "example" : 320.0,
+          "description" : "Total amount payable"
+        },
+        "Fees" : {
+          "type" : "number",
+          "example" : 20.0,
+          "description" : "Amount of fees payable"
+        },
+        "Interest" : {
+          "type" : "number",
+          "example" : 50.0,
+          "description" : "Amount of interest payable"
+        },
+        "Principal" : {
+          "type" : "number",
+          "example" : 250.0,
+          "description" : "Principal part of the installment"
+        },
+        "Status" : {
+          "type" : "object",
+          "allOf" : [ {
+            "$ref" : "#/definitions/InstallmentStatus"
+          } ]
+        },
+        "DueDate" : {
+          "type" : "object",
+          "allOf" : [ {
+            "title" : "Due date of the installment"
+          }, {
+            "$ref" : "#/definitions/DateTimeString"
+          } ]
+        },
+        "PastDueInterest" : {
+          "type" : "number",
+          "example" : 10.0,
+          "description" : "Total past due interest accrued"
+        },
+        "LateFees" : {
+          "type" : "number",
+          "example" : 0.0,
+          "description" : "Late fees applied"
+        },
+        "Commissions" : {
+          "type" : "number",
+          "example" : 10.0,
+          "description" : "Commissions (admin. fee, origination fee, etc.)"
+        }
+      }
+    },
+    "CustomerDetails_Docs" : {
+      "properties" : {
+        "Document" : {
+          "$ref" : "#/definitions/UploadedFile"
+        }
+      }
+    }
+  },
+  "parameters" : {
+    "tkLender_UserAuthToken" : {
+      "name" : "tkLender_UserAuthToken",
+      "in" : "header",
+      "description" : "String token that identifies the user (Customer, Investor). This token can be obtained from the result of the `Login` method, or after the `Register` method for the corresponding user is called",
+      "required" : true,
+      "type" : "string"
+    },
+    "path_loanId" : {
+      "name" : "loanId",
+      "in" : "path",
+      "description" : "Unique internal identifier of the loan",
+      "required" : true,
+      "type" : "integer"
+    },
+    "path_collateralId" : {
+      "name" : "collateralId",
+      "in" : "path",
+      "description" : "Unique identifier of the collateral",
+      "required" : true,
+      "type" : "string"
+    }
+  },
+  "responses" : {
+    "400" : {
+      "description" : "BAD REQUEST (400). Failed to process the request. Possible cause: input validation error or business constraints"
+    },
+    "403" : {
+      "description" : "FORBIDDEN (403). The API key or customer authorization token is missing or invalid"
+    },
+    "500" : {
+      "description" : "SERVER ERROR (500). An unexpected error occurred"
+    }
+  }
+}
