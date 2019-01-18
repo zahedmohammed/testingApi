@@ -1,0 +1,3682 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "API for Beauty POS backend",
+    "version" : "1.0.0",
+    "title" : "Beauty POS API",
+    "contact" : {
+      "email" : "info@enterwell.net"
+    }
+  },
+  "host" : "client.beautypos.ch",
+  "basePath" : "/v1/",
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/settings" : {
+      "get" : {
+        "tags" : [ "settings" ],
+        "summary" : "Retrieves the settings",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Returns app settings",
+            "schema" : {
+              "$ref" : "#/definitions/SettingsDto"
+            }
+          }
+        }
+      }
+    },
+    "/settings/company-info" : {
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Updates the company settings // TODO",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "ok // TODO"
+          }
+        }
+      }
+    },
+    "/settings/notification-settings" : {
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Updates the notification settings",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "notificationSettings",
+          "description" : "Notification settings to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/NotificationsSettingsDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated notification settings.",
+            "schema" : {
+              "$ref" : "#/definitions/NotificationsSettingsDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/settings/working-times" : {
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Updates the working times settings",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "workingTimeSettings",
+          "description" : "Working time settings to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WorkingTimeSettingsDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated working time settings.",
+            "schema" : {
+              "$ref" : "#/definitions/WorkingTimeSettingsDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/settings/holidays" : {
+      "post" : {
+        "tags" : [ "settings" ],
+        "summary" : "Creates new holiday.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "holiday",
+          "description" : "Holiday to create.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/HolidayDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created working time settings.",
+            "schema" : {
+              "$ref" : "#/definitions/HolidayDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/settings/holidays/{id}" : {
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Updates holiday",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Holiday id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "holiday",
+          "description" : "Holiday to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/HolidayDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated holiday.",
+            "schema" : {
+              "$ref" : "#/definitions/HolidayDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "settings" ],
+        "summary" : "Deletes holiday",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Holiday id",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Delete successful."
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/app-settings" : {
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Updates app settings",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "appSettings",
+          "description" : "App settings to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/AppSettingsDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated app settings.",
+            "schema" : {
+              "$ref" : "#/definitions/AppSettingsDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/vat-rates" : {
+      "post" : {
+        "tags" : [ "settings" ],
+        "summary" : "Creates new VAT rate.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "vatRate",
+          "description" : "VAT rate to create.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/VatRateDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated VAT rate.",
+            "schema" : {
+              "$ref" : "#/definitions/VatRateDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/vat-rates/{id}" : {
+      "get" : {
+        "tags" : [ "settings" ],
+        "summary" : "Retrieves VAT rate.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "VAT rate id.",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved VAT rate",
+            "schema" : {
+              "$ref" : "#/definitions/VatRateDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "VAT rate not found"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Updates VAT rate",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "VAT rate id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "vatRate",
+          "description" : "VAT rate to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/VatRateDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated VAT rate",
+            "schema" : {
+              "$ref" : "#/definitions/VatRateDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "VAT rate not found"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "settings" ],
+        "summary" : "Deletes VAT rate.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "VAT rate id",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Delete successful."
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/settings/note-categories" : {
+      "put" : {
+        "tags" : [ "settings" ],
+        "summary" : "Edits note categories collection. Creates/edits/deletes note categories.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "noteCategories",
+          "description" : "Note category to create.",
+          "required" : false,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/ClientNoteCategoryDto"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Created note category.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ClientNoteCategoryDto"
+              }
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/service-templates" : {
+      "post" : {
+        "tags" : [ "services" ],
+        "summary" : "Creates new service template.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "service",
+          "description" : "Service to create.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/ServiceTemplateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created service template.",
+            "schema" : {
+              "$ref" : "#/definitions/ServiceTemplateDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/service-templates/{id}" : {
+      "put" : {
+        "tags" : [ "services" ],
+        "summary" : "Updates service template.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Service template id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "service",
+          "description" : "Service template to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ServiceTemplateDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated service template.",
+            "schema" : {
+              "$ref" : "#/definitions/ServiceTemplateDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "services" ],
+        "summary" : "Deletes service template.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Service template id",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Delete successful."
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/service-template-categories" : {
+      "get" : {
+        "tags" : [ "services" ],
+        "summary" : "Retrieves all service categories.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "All service categories.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ServiceTemplateCategoryDto"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "services" ],
+        "summary" : "Creates new service template category.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "serviceCategory",
+          "description" : "Service template category to create.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/ServiceTemplateCategoryDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created service template category.",
+            "schema" : {
+              "$ref" : "#/definitions/ServiceTemplateCategoryDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/service-template-categories/{id}" : {
+      "put" : {
+        "tags" : [ "services" ],
+        "summary" : "Updates service template category.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Service template category id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "service",
+          "description" : "Service template category to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ServiceTemplateCategoryDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated service category template.",
+            "schema" : {
+              "$ref" : "#/definitions/ServiceTemplateCategoryDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "services" ],
+        "summary" : "Deletes service template category.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Service template category id",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Delete successful."
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/products" : {
+      "post" : {
+        "tags" : [ "products" ],
+        "summary" : "Creates new product.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "product",
+          "description" : "product to create.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/ProductCreateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created resource.",
+            "schema" : {
+              "$ref" : "#/definitions/ProductDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/products/{id}" : {
+      "put" : {
+        "tags" : [ "products" ],
+        "summary" : "Updates product.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "product id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "product",
+          "description" : "product to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ProductUpdateDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated product.",
+            "schema" : {
+              "$ref" : "#/definitions/ProductDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "products" ],
+        "summary" : "Deletes product.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Product id",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Delete successful."
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/product-categories" : {
+      "get" : {
+        "tags" : [ "products" ],
+        "summary" : "Retrieves product categories with products inside",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "All product categories with products.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ProductCategoryDetailedDto"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "products" ],
+        "summary" : "Creates new product category.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "productCategory",
+          "description" : "Service product to create.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/ProductCategoryDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created product category.",
+            "schema" : {
+              "$ref" : "#/definitions/ProductCategoryDetailedDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/product-categories/{id}" : {
+      "put" : {
+        "tags" : [ "products" ],
+        "summary" : "Updates product category.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "product category id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "product",
+          "description" : "product category to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ProductCategoryDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated product category template.",
+            "schema" : {
+              "$ref" : "#/definitions/ProductCategoryDetailedDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "products" ],
+        "summary" : "Deletes product category.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "product category id",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Delete successful."
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/orders" : {
+      "get" : {
+        "tags" : [ "orders" ],
+        "summary" : "Retrieves order items.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Order items.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/OrderItemDto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/add-products" : {
+      "post" : {
+        "tags" : [ "orders" ],
+        "summary" : "Adds product to product categories.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "orderItem",
+          "description" : "Order item to create.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/OrderItemCreateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created order item for product.",
+            "schema" : {
+              "$ref" : "#/definitions/OrderItemDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/orders/items/{id}" : {
+      "put" : {
+        "tags" : [ "orders" ],
+        "summary" : "Updates order item.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "order item id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "orderItem",
+          "description" : "Order item to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/OrderItemEditDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated resource.",
+            "schema" : {
+              "$ref" : "#/definitions/OrderItemDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/orders/items/mark-delivered" : {
+      "post" : {
+        "tags" : [ "orders" ],
+        "summary" : "Marks order items as delivered.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "items",
+          "description" : "Ids of order items to mark as delivered.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/items"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Order items marked delivered.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "number",
+                "example" : 1.0
+              }
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/orders/items/remove" : {
+      "post" : {
+        "tags" : [ "orders" ],
+        "summary" : "Deletes order items.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "items",
+          "description" : "Ids of order items to mark as delivered.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/items_1"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Ids of removed order items.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "number",
+                "example" : 1.0
+              }
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/workers" : {
+      "get" : {
+        "tags" : [ "workers" ],
+        "summary" : "Retrieves all workers.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "The page of workers.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/WorkerDto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/workers/{id}" : {
+      "put" : {
+        "tags" : [ "workers" ],
+        "summary" : "Updates worker.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "worker id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "worker",
+          "description" : "Worker to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WorkerUpdateDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated worker.",
+            "schema" : {
+              "$ref" : "#/definitions/WorkerDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/coupons" : {
+      "get" : {
+        "tags" : [ "coupons" ],
+        "summary" : "Retrieves coupons with paging.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The page number.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of items per page.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "clientId",
+          "in" : "query",
+          "description" : "Client id for filtering.",
+          "required" : false,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The page of coupons.",
+            "schema" : {
+              "$ref" : "#/definitions/CouponsPagedDto"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "coupons" ],
+        "summary" : "Creates a new coupon.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "coupon",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/CouponCreateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created coupon.",
+            "schema" : {
+              "$ref" : "#/definitions/CouponDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/coupons/{id}/transactions" : {
+      "post" : {
+        "tags" : [ "coupons" ],
+        "summary" : "Creates new coupon transaction with status pending.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Coupon id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "couponTransaction",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/CouponTransactionCreateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created coupon transaction.",
+            "schema" : {
+              "$ref" : "#/definitions/CouponTransactionDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/coupons/{couponId}/transactions/{transactionId}/set-status" : {
+      "post" : {
+        "tags" : [ "coupons" ],
+        "summary" : "Sets status to coupon transaction and updates the coupon.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "couponId",
+          "in" : "path",
+          "description" : "Coupon id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "name" : "transactionId",
+          "in" : "path",
+          "description" : "Coupon transaction id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/status"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Updated coupon transaction.",
+            "schema" : {
+              "$ref" : "#/definitions/CouponTransactionDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/clients" : {
+      "get" : {
+        "tags" : [ "clients" ],
+        "summary" : "Retrieves all clients who match the search query.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "search",
+          "in" : "query",
+          "description" : "Search query.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "All clients who match the search query.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ClientDto"
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "clients" ],
+        "summary" : "Creates a new client.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "client",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/ClientCreateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "New client created",
+            "schema" : {
+              "$ref" : "#/definitions/ClientDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/clients/all" : {
+      "get" : {
+        "tags" : [ "clients" ],
+        "summary" : "Retrieves all clients.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Collection of all clients.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/ClientDto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}" : {
+      "get" : {
+        "tags" : [ "clients" ],
+        "summary" : "Retrieves client.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "client id.",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Retrieved resource.",
+            "schema" : {
+              "$ref" : "#/definitions/ClientDetailedDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "clients" ],
+        "summary" : "Updates client.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "client id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "client",
+          "description" : "client to update.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/ClientEditDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated client.",
+            "schema" : {
+              "$ref" : "#/definitions/ClientDetailedDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "404" : {
+            "description" : "Resource not found."
+          }
+        }
+      }
+    },
+    "/clients/{id}/set-state" : {
+      "post" : {
+        "tags" : [ "clients" ],
+        "summary" : "Sets state to the client.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "client id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "state",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/ActiveStatus"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated client.",
+            "schema" : {
+              "$ref" : "#/definitions/ClientDto"
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}/photos" : {
+      "post" : {
+        "tags" : [ "clients" ],
+        "summary" : "Creates photo for client.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "client id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/body"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created photo.",
+            "schema" : {
+              "$ref" : "#/definitions/PhotoDto"
+            }
+          }
+        }
+      }
+    },
+    "/clients/{id}/photos/{photoId}" : {
+      "delete" : {
+        "tags" : [ "clients" ],
+        "summary" : "Creates photo for client.",
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Client id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "name" : "photoId",
+          "in" : "path",
+          "description" : "Photo id.",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Photo deleted."
+          }
+        }
+      }
+    },
+    "/invoices" : {
+      "get" : {
+        "tags" : [ "invoices" ],
+        "summary" : "Retrieves invoices with paging.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The page number.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of items per page.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "dateFrom",
+          "in" : "query",
+          "description" : "Date from for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dateTo",
+          "in" : "query",
+          "description" : "Date to for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "clientId",
+          "in" : "query",
+          "description" : "Client id for filtering.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "workerIds",
+          "in" : "query",
+          "description" : "Worker ids for filtering.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          },
+          "collectionFormat" : "csv"
+        }, {
+          "name" : "hasServices",
+          "in" : "query",
+          "description" : "If invoice has services for filtering.",
+          "required" : false,
+          "type" : "boolean"
+        }, {
+          "name" : "hasProducts",
+          "in" : "query",
+          "description" : "If invoice has products for filtering.",
+          "required" : false,
+          "type" : "boolean"
+        }, {
+          "name" : "hasCoupons",
+          "in" : "query",
+          "description" : "If invoice has coupons for filtering.",
+          "required" : false,
+          "type" : "boolean"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The page of invoices.",
+            "schema" : {
+              "$ref" : "#/definitions/InvoicePagedDto"
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "invoices" ],
+        "summary" : "Creates a new invoice.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "invoice",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/InvoiceDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created invoice.",
+            "schema" : {
+              "$ref" : "#/definitions/InvoiceDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/invoices/{id}" : {
+      "get" : {
+        "tags" : [ "invoices" ],
+        "summary" : "Retrieves invoice details.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Invoice id.",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Invoice details.",
+            "schema" : {
+              "$ref" : "#/definitions/InvoiceDto"
+            }
+          }
+        }
+      }
+    },
+    "/invoices/{id}/set-transaction-data" : {
+      "post" : {
+        "tags" : [ "invoices" ],
+        "summary" : "Adds transaction data to the invoice.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Invoice id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "transactionData",
+          "description" : "JSON encoded data about the transaction.",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated invoice.",
+            "schema" : {
+              "$ref" : "#/definitions/InvoiceDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/invoice-items" : {
+      "get" : {
+        "tags" : [ "invoices" ],
+        "summary" : "Retrieves invoice items with paging.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "pageNumber",
+          "in" : "query",
+          "description" : "The page number.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "pageSize",
+          "in" : "query",
+          "description" : "Number of items per page.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "dateFrom",
+          "in" : "query",
+          "description" : "Date from for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dateTo",
+          "in" : "query",
+          "description" : "Date to for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "clientId",
+          "in" : "query",
+          "description" : "Client id for filtering.",
+          "required" : false,
+          "type" : "number"
+        }, {
+          "name" : "workerIds",
+          "in" : "query",
+          "description" : "Worker ids for filtering.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          },
+          "collectionFormat" : "csv"
+        }, {
+          "name" : "types",
+          "in" : "query",
+          "description" : "Invoice item types.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "string",
+            "enum" : [ "service", "product", "coupon" ]
+          },
+          "collectionFormat" : "csv"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The page of invoice items.",
+            "schema" : {
+              "$ref" : "#/definitions/InvoiceItemPagedDto"
+            }
+          }
+        }
+      }
+    },
+    "/dashboard" : {
+      "get" : {
+        "tags" : [ "dashboard" ],
+        "summary" : "Dashboard data.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Dashboard data.",
+            "schema" : {
+              "$ref" : "#/definitions/DashboardDto"
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/conversions" : {
+      "get" : {
+        "tags" : [ "dashboard" ],
+        "summary" : "Retrieves conversions for dashboard.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "dateFrom",
+          "in" : "query",
+          "description" : "Date from for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dateTo",
+          "in" : "query",
+          "description" : "Date to for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "workerIds",
+          "in" : "query",
+          "description" : "Worker ids for filtering.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          },
+          "collectionFormat" : "csv"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Conversions data.",
+            "schema" : {
+              "$ref" : "#/definitions/DashboardConversionDto"
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/customers" : {
+      "get" : {
+        "tags" : [ "dashboard" ],
+        "summary" : "Retrieves customers for dashboard.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "dateFrom",
+          "in" : "query",
+          "description" : "Date from for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dateTo",
+          "in" : "query",
+          "description" : "Date to for filtering.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Customers data.",
+            "schema" : {
+              "$ref" : "#/definitions/DashboardCustomersDto"
+            }
+          }
+        }
+      }
+    },
+    "/dashboard/revenue" : {
+      "get" : {
+        "tags" : [ "dashboard" ],
+        "summary" : "Retrieves revenue for dashboard.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "dateFrom",
+          "in" : "query",
+          "description" : "Date from for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dateTo",
+          "in" : "query",
+          "description" : "Date to for filtering.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Invoice data for revenue.",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/InvoiceDto"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reports/daily" : {
+      "get" : {
+        "tags" : [ "reports" ],
+        "summary" : "Report daily data.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "date",
+          "in" : "query",
+          "description" : "Date for filtering.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Dashboard data.",
+            "schema" : {
+              "$ref" : "#/definitions/ReportsDailyDto"
+            }
+          }
+        }
+      }
+    },
+    "/appointments" : {
+      "get" : {
+        "tags" : [ "appointments" ],
+        "summary" : "Retrieves appointments for date range.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "dateFrom",
+          "in" : "query",
+          "description" : "Date from for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "dateTo",
+          "in" : "query",
+          "description" : "Date to for filtering.",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "name" : "workerIds",
+          "in" : "query",
+          "description" : "Worker ids for filtering.",
+          "required" : false,
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          },
+          "collectionFormat" : "csv"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Appointments for selected date range.",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "appointments" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/definitions/AppointmentDto"
+                  }
+                },
+                "breaks" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/definitions/BreakDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "appointments" ],
+        "summary" : "Creates new appointment.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "appointment",
+          "description" : "Appointment data.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/AppointmentCreateDto"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Created appointment.",
+            "schema" : {
+              "$ref" : "#/definitions/AppointmentDto"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/appointments/{id}" : {
+      "put" : {
+        "tags" : [ "appointments" ],
+        "summary" : "Updates the appointment.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Appointment id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "appointment",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/AppointmentEditDto"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated appointment.",
+            "schema" : {
+              "$ref" : "#/definitions/AppointmentDto"
+            }
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "appointments" ],
+        "summary" : "Deletes the appointment.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Appointment id.",
+          "required" : true,
+          "type" : "number"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Appointment deleted."
+          }
+        }
+      }
+    },
+    "/appointments/{id}/set-status" : {
+      "post" : {
+        "tags" : [ "appointments" ],
+        "summary" : "Updates the appointment status.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Appointment id.",
+          "required" : true,
+          "type" : "number"
+        }, {
+          "in" : "body",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/status_1"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Updated appointment.",
+            "schema" : {
+              "$ref" : "#/definitions/AppointmentDto"
+            }
+          }
+        }
+      }
+    },
+    "/mobile/initial-data" : {
+      "get" : {
+        "tags" : [ "mobile" ],
+        "summary" : "Retrieves initial data for mobile app.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "Initial data for mobile.",
+            "schema" : {
+              "$ref" : "#/definitions/MobileInitialDataDto"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "BasePagingDto" : {
+      "properties" : {
+        "pageNumber" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "pageSize" : {
+          "type" : "number",
+          "example" : 10.0
+        }
+      }
+    },
+    "ActiveStatus" : {
+      "type" : "string",
+      "enum" : [ "active", "inactive" ]
+    },
+    "CurrencyDto" : {
+      "type" : "object",
+      "required" : [ "id", "name", "symbol" ],
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Euro"
+        },
+        "symbol" : {
+          "type" : "string",
+          "example" : "€"
+        }
+      }
+    },
+    "VatRateDto" : {
+      "type" : "object",
+      "required" : [ "isDefault", "name", "percent" ],
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "PDV"
+        },
+        "percent" : {
+          "type" : "number",
+          "example" : 25.0
+        },
+        "isDefault" : {
+          "type" : "boolean",
+          "example" : true
+        }
+      }
+    },
+    "MoneyFormat" : {
+      "type" : "string",
+      "enum" : [ "dot", "comma" ]
+    },
+    "PaymentCardType" : {
+      "type" : "string",
+      "enum" : [ "visa", "mastercard", "americanexpress" ]
+    },
+    "PaymentMethod" : {
+      "type" : "string",
+      "enum" : [ "cash", "bank", "card", "coupon" ]
+    },
+    "AppSettingsBaseDto" : {
+      "type" : "object",
+      "properties" : {
+        "selectedCurrencyId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "selectedCurrency" : {
+          "$ref" : "#/definitions/CurrencyDto"
+        },
+        "moneyFormat" : {
+          "$ref" : "#/definitions/MoneyFormat"
+        },
+        "defaultInvoiceMessage" : {
+          "type" : "string",
+          "example" : "Hvala vam i dođite nam opet."
+        },
+        "couponsEnabled" : {
+          "type" : "boolean"
+        },
+        "acceptedPaymentCardTypes" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/PaymentCardType"
+          }
+        },
+        "sumupApiKey" : {
+          "type" : "string",
+          "example" : "asdasdsa-adsasda-asdasdf-asdfasfd"
+        }
+      }
+    },
+    "AppSettingsDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/AppSettingsBaseDto"
+      }, {
+        "properties" : {
+          "vatRates" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/VatRateDto"
+            }
+          }
+        }
+      } ]
+    },
+    "PhotoDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "thumbnailUrl" : {
+          "type" : "string",
+          "example" : "https://host.com/fdasf123-thumb.jpg"
+        },
+        "thumbnailWidth" : {
+          "type" : "number",
+          "example" : 320.0
+        },
+        "thumbnailHeight" : {
+          "type" : "number",
+          "example" : 480.0
+        },
+        "originalUrl" : {
+          "type" : "string",
+          "example" : "https://host.com/file12312321.jpg"
+        },
+        "originalWidth" : {
+          "type" : "number",
+          "example" : 1920.0
+        },
+        "originalHeight" : {
+          "type" : "number",
+          "example" : 1080.0
+        }
+      }
+    },
+    "NotificationsSettingsDto" : {
+      "properties" : {
+        "customerAppointmentCreated" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "customerAppointmentChanged" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "customerAppointmentCanceled" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "customerReminderDayBefore" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "customerSendInvoice" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "customerBirthdayGreeting" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "workerAppointmentCreated" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "workerAppointmentChanged" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "workerAppointmentCanceled" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "alertStockLow" : {
+          "type" : "boolean",
+          "example" : true
+        }
+      }
+    },
+    "HolidayDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "4th of July"
+        },
+        "date" : {
+          "type" : "string",
+          "example" : "20181202T184821Z"
+        },
+        "shouldRepeat" : {
+          "type" : "boolean",
+          "example" : true
+        }
+      }
+    },
+    "WorkingTimeSettingsDto" : {
+      "properties" : {
+        "mondayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "mondayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "mondayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "tuesdayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "tuesdayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "tuesdayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "wednesdayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "wednesdayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "wednesdayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "thursdayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "thursdayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "thursdayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "fridayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "fridayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "fridayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "staurdayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "saturdayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "saturdayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "sundayWorking" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "sundayFrom" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "sundayTo" : {
+          "type" : "string",
+          "example" : "PT6H8M"
+        },
+        "holidays" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/HolidayDto"
+          }
+        }
+      }
+    },
+    "SettingsDto" : {
+      "properties" : {
+        "companySettings" : {
+          "type" : "object",
+          "properties" : { }
+        },
+        "notificationSettings" : {
+          "$ref" : "#/definitions/NotificationsSettingsDto"
+        },
+        "workingTimeSettings" : {
+          "$ref" : "#/definitions/WorkingTimeSettingsDto"
+        },
+        "appSettings" : {
+          "$ref" : "#/definitions/AppSettingsDto"
+        },
+        "noteCategories" : {
+          "$ref" : "#/definitions/ClientNoteCategoryDto"
+        }
+      }
+    },
+    "ServiceTemplateCategoryDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Hair styling"
+        },
+        "serviceTemplates" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ServiceTemplateDto"
+          }
+        }
+      }
+    },
+    "ServiceTemplateDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Ime servisa, nemam pojma"
+        },
+        "categoryId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "categoryName" : {
+          "type" : "string",
+          "example" : "Hair styling"
+        },
+        "priceNet" : {
+          "type" : "number",
+          "example" : 10000.0
+        },
+        "priceGross" : {
+          "type" : "number",
+          "example" : 12000.0
+        },
+        "vatRateId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "durationInMinutes" : {
+          "type" : "number",
+          "example" : 20.0
+        },
+        "workerIds" : {
+          "type" : "array",
+          "example" : [ "assad-asdasdas", "asdasdsa-asdas" ],
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "ProductCategoryDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Shampoo"
+        }
+      }
+    },
+    "ProductCategoryDetailedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/ProductCategoryDto"
+      }, {
+        "properties" : {
+          "isActive" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "products" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/ProductDto"
+            }
+          }
+        }
+      } ]
+    },
+    "ProductDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Šauma, 2l"
+        },
+        "categoryId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "categoryName" : {
+          "type" : "string",
+          "example" : "Shampoo"
+        },
+        "barcodeNumber" : {
+          "type" : "string",
+          "example" : "12312312312312"
+        },
+        "productNumber" : {
+          "type" : "string",
+          "example" : "12312312"
+        },
+        "vatRateId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "purchasePriceNet" : {
+          "type" : "number",
+          "example" : 10000.0
+        },
+        "purchasePriceGross" : {
+          "type" : "number",
+          "example" : 12000.0
+        },
+        "sellingPriceNet" : {
+          "type" : "number",
+          "example" : 100000.0
+        },
+        "sellingPriceGross" : {
+          "type" : "number",
+          "example" : 120000.0
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "To nisam ja, to je moja Šauma."
+        },
+        "photo" : {
+          "$ref" : "#/definitions/PhotoDto"
+        },
+        "shouldManageStock" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "currentStockNumber" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "minStockNumber" : {
+          "type" : "number",
+          "example" : 2.0
+        },
+        "maxStockNumber" : {
+          "type" : "number",
+          "example" : 100.0
+        }
+      }
+    },
+    "ProductCreateDto" : {
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "example" : "Šauma, 2l"
+        },
+        "categoryId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "barcodeNumber" : {
+          "type" : "string",
+          "example" : "12312312312312"
+        },
+        "productNumber" : {
+          "type" : "string",
+          "example" : "12312312"
+        },
+        "vatRateId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "purchasePriceNet" : {
+          "type" : "number",
+          "example" : 10000.0
+        },
+        "purchasePriceGross" : {
+          "type" : "number",
+          "example" : 12000.0
+        },
+        "sellingPriceNet" : {
+          "type" : "number",
+          "example" : 100000.0
+        },
+        "sellingPriceGross" : {
+          "type" : "number",
+          "example" : 120000.0
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "To nisam ja, to je moja Šauma."
+        },
+        "shouldManageStock" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "currentStockNumber" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "minStockNumber" : {
+          "type" : "number",
+          "example" : 2.0
+        },
+        "maxStockNumber" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "photoData" : {
+          "type" : "string",
+          "example" : "base64string"
+        }
+      }
+    },
+    "ProductUpdateDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Šauma, 2l"
+        },
+        "categoryId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "barcodeNumber" : {
+          "type" : "string",
+          "example" : "12312312312312"
+        },
+        "productNumber" : {
+          "type" : "string",
+          "example" : "12312312"
+        },
+        "vatRateId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "purchasePriceNet" : {
+          "type" : "number",
+          "example" : 10000.0
+        },
+        "purchasePriceGross" : {
+          "type" : "number",
+          "example" : 12000.0
+        },
+        "sellingPriceNet" : {
+          "type" : "number",
+          "example" : 100000.0
+        },
+        "sellingPriceGross" : {
+          "type" : "number",
+          "example" : 120000.0
+        },
+        "description" : {
+          "type" : "string",
+          "example" : "To nisam ja, to je moja Šauma."
+        },
+        "shouldManageStock" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "currentStockNumber" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "minStockNumber" : {
+          "type" : "number",
+          "example" : 2.0
+        },
+        "maxStockNumber" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "newPhotoData" : {
+          "type" : "string",
+          "example" : "base64string"
+        },
+        "shouldRemovePhoto" : {
+          "type" : "boolean",
+          "example" : false
+        }
+      }
+    },
+    "ProductsPagingDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/BasePagingDto"
+      }, {
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/ProductDto"
+            }
+          }
+        }
+      } ]
+    },
+    "OrderItemCreateDto" : {
+      "properties" : {
+        "productId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "quantity" : {
+          "type" : "number",
+          "example" : 20.0
+        }
+      }
+    },
+    "OrderItemEditDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "quantity" : {
+          "type" : "number",
+          "example" : 20.0
+        }
+      }
+    },
+    "OrderItemDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "productId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "product" : {
+          "$ref" : "#/definitions/ProductDto"
+        },
+        "quantity" : {
+          "type" : "number",
+          "example" : 200.0
+        },
+        "isDelivered" : {
+          "type" : "boolean",
+          "example" : false
+        }
+      }
+    },
+    "WorkerDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "firstName" : {
+          "type" : "string",
+          "example" : "Željko"
+        },
+        "lastName" : {
+          "type" : "string",
+          "example" : "Pervan"
+        },
+        "profilePhoto" : {
+          "$ref" : "#/definitions/PhotoDto"
+        },
+        "serviceIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          }
+        },
+        "email" : {
+          "type" : "string",
+          "example" : "em@ail.com"
+        },
+        "color" : {
+          "type" : "string",
+          "example" : "#ffffff"
+        },
+        "additionalInfo" : {
+          "type" : "string",
+          "example" : "Dodatni podaci o zaposleniku"
+        },
+        "isActive" : {
+          "type" : "boolean",
+          "example" : true
+        }
+      }
+    },
+    "WorkerUpdateDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "serviceIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number"
+          }
+        },
+        "color" : {
+          "type" : "string",
+          "example" : "#ffffff"
+        },
+        "additionalInfo" : {
+          "type" : "string",
+          "example" : "Dodatni podaci o zaposleniku"
+        },
+        "newProfilePhotoData" : {
+          "type" : "string",
+          "example" : "base64String213"
+        },
+        "shouldRemoveProfilePhoto" : {
+          "type" : "boolean",
+          "example" : false
+        }
+      }
+    },
+    "ClientNoteCategoryDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "label" : {
+          "type" : "string",
+          "example" : "Naziv neki elegantni"
+        },
+        "displayOrder" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "isActive" : {
+          "type" : "boolean",
+          "example" : false
+        }
+      }
+    },
+    "ClientNoteDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "noteCategoryId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "noteCategory" : {
+          "$ref" : "#/definitions/ClientNoteCategoryDto"
+        },
+        "note" : {
+          "type" : "string",
+          "example" : "Ovo je neki notes, štajaznam."
+        },
+        "dateTimeCreated" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "workerId" : {
+          "type" : "number",
+          "example" : 1.0
+        }
+      }
+    },
+    "ClientDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "firstName" : {
+          "type" : "string",
+          "example" : "Željko"
+        },
+        "lastName" : {
+          "type" : "string",
+          "example" : "Pervan"
+        },
+        "birthDate" : {
+          "type" : "string",
+          "example" : "20181202T184821Z"
+        },
+        "profilePhoto" : {
+          "$ref" : "#/definitions/PhotoDto"
+        },
+        "email" : {
+          "type" : "string",
+          "example" : "em@ail.com"
+        }
+      }
+    },
+    "ClientDetailedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/ClientDto"
+      }, {
+        "properties" : {
+          "address" : {
+            "type" : "string",
+            "example" : "vesela ulica 12"
+          },
+          "city" : {
+            "type" : "string",
+            "example" : "Zagreb"
+          },
+          "postalCode" : {
+            "type" : "string",
+            "example" : "10000"
+          },
+          "state" : {
+            "type" : "string",
+            "example" : "Grad Zagreb"
+          },
+          "country" : {
+            "type" : "string",
+            "example" : "Croatia"
+          },
+          "phone" : {
+            "type" : "string",
+            "example" : "+3859123456789"
+          },
+          "mobile" : {
+            "type" : "string",
+            "example" : "+3859123456789"
+          },
+          "status" : {
+            "$ref" : "#/definitions/ActiveStatus"
+          },
+          "dateCreated" : {
+            "type" : "string",
+            "example" : "20181202T184821Z"
+          },
+          "lastVisit" : {
+            "type" : "string",
+            "example" : "20181202T184821Z"
+          },
+          "notes" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/ClientNoteDto"
+            }
+          },
+          "photos" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/PhotoDto"
+            }
+          }
+        }
+      } ]
+    },
+    "ClientFormDto" : {
+      "properties" : {
+        "firstName" : {
+          "type" : "string",
+          "example" : "Željko"
+        },
+        "lastName" : {
+          "type" : "string",
+          "example" : "Pervan"
+        },
+        "birthDate" : {
+          "type" : "string",
+          "example" : "20181202T184821Z"
+        },
+        "phone" : {
+          "type" : "string",
+          "example" : "091091091091"
+        },
+        "mobile" : {
+          "type" : "string",
+          "example" : "091091091"
+        },
+        "email" : {
+          "type" : "string",
+          "example" : "em@ail.com"
+        },
+        "address" : {
+          "type" : "string",
+          "example" : "vesela ulica 12"
+        },
+        "city" : {
+          "type" : "string",
+          "example" : "Zagreb"
+        },
+        "postalCode" : {
+          "type" : "string",
+          "example" : "10000"
+        },
+        "state" : {
+          "type" : "string",
+          "example" : "Grad Zagreb"
+        },
+        "country" : {
+          "type" : "string",
+          "example" : "Croatia"
+        },
+        "isActive" : {
+          "type" : "boolean",
+          "example" : true
+        }
+      }
+    },
+    "ClientCreateDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/ClientFormDto"
+      }, {
+        "properties" : {
+          "profilePhotoData" : {
+            "type" : "string",
+            "example" : "base64StringKojiPredstavljasliku"
+          }
+        }
+      } ]
+    },
+    "ClientEditDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/ClientFormDto"
+      }, {
+        "properties" : {
+          "id" : {
+            "type" : "number",
+            "example" : 1.0
+          },
+          "shouldRemoveProfilePhoto" : {
+            "type" : "boolean",
+            "example" : false
+          },
+          "newProfilePhotoData" : {
+            "type" : "string",
+            "example" : "nekiBase64String"
+          }
+        }
+      } ]
+    },
+    "ClientsPagedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/BasePagingDto"
+      }, {
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/ClientDto"
+            }
+          }
+        }
+      } ]
+    },
+    "AppointmentServiceCreateDto" : {
+      "properties" : {
+        "serviceTemplateId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "order" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "workerId" : {
+          "type" : "string",
+          "example" : "guid-guid-guid"
+        }
+      }
+    },
+    "AppointmentServiceDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/AppointmentServiceCreateDto"
+      }, {
+        "properties" : {
+          "id" : {
+            "type" : "number",
+            "example" : 1.0
+          },
+          "serviceTemplate" : {
+            "$ref" : "#/definitions/ServiceTemplateDto"
+          }
+        }
+      } ]
+    },
+    "EventDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "startDateTime" : {
+          "type" : "string",
+          "example" : "20181204T162931Z"
+        },
+        "endDateTime" : {
+          "type" : "string",
+          "example" : "20181204T162931Z"
+        },
+        "creatorName" : {
+          "type" : "string",
+          "example" : "Javel McGee"
+        },
+        "creatorId" : {
+          "type" : "string",
+          "example" : "guid-guid-guid"
+        }
+      }
+    },
+    "BreakDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/EventDto"
+      }, {
+        "properties" : {
+          "worker" : {
+            "$ref" : "#/definitions/WorkerDto"
+          }
+        }
+      } ]
+    },
+    "AppointmentStatusEnum" : {
+      "type" : "string",
+      "enum" : [ "deleted", "active", "clientDidNotShowUp" ]
+    },
+    "AppointmentDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/EventDto"
+      }, {
+        "properties" : {
+          "clientId" : {
+            "type" : "number",
+            "example" : 1.0
+          },
+          "client" : {
+            "$ref" : "#/definitions/ClientDto"
+          },
+          "appointmentServices" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/AppointmentServiceDto"
+            }
+          },
+          "invoiceId" : {
+            "type" : "number",
+            "example" : 1.0
+          },
+          "invoice" : {
+            "$ref" : "#/definitions/InvoiceDto"
+          },
+          "isNewClient" : {
+            "type" : "boolean",
+            "example" : true
+          },
+          "status" : {
+            "$ref" : "#/definitions/AppointmentStatusEnum"
+          }
+        }
+      } ]
+    },
+    "AppointmentCreateDto" : {
+      "properties" : {
+        "startDateTime" : {
+          "type" : "string",
+          "example" : "20181202T184821Z"
+        },
+        "endDateTime" : {
+          "type" : "string",
+          "example" : "20181202T184821Z"
+        },
+        "clientId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "appointmentServices" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/AppointmentServiceCreateDto"
+          }
+        },
+        "creatorId" : {
+          "type" : "string",
+          "example" : "guid-guid-guid-guid"
+        }
+      }
+    },
+    "AppointmentEditDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/AppointmentCreateDto"
+      }, {
+        "properties" : {
+          "id" : {
+            "type" : "number",
+            "example" : 1.0
+          },
+          "status" : {
+            "$ref" : "#/definitions/AppointmentStatusEnum"
+          }
+        }
+      } ]
+    },
+    "CouponStatusEnum" : {
+      "type" : "string",
+      "enum" : [ "pending", "active", "disabled", "expired" ]
+    },
+    "CouponTransactionStatusEnum" : {
+      "type" : "string",
+      "enum" : [ "reserved", "canceled", "applied" ]
+    },
+    "CouponTransactionCreateDto" : {
+      "properties" : {
+        "couponCode" : {
+          "type" : "string",
+          "example" : "human-friendly-code"
+        },
+        "amount" : {
+          "type" : "number",
+          "example" : 1000.0
+        }
+      }
+    },
+    "CouponTransactionDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "example" : "neki-unique-guid-jelte"
+        },
+        "couponId" : {
+          "type" : "string",
+          "example" : "opet-neki-guid"
+        },
+        "amountReserved" : {
+          "type" : "number",
+          "example" : 1000.0
+        },
+        "status" : {
+          "$ref" : "#/definitions/CouponTransactionStatusEnum"
+        },
+        "dateTimeCreated" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        }
+      }
+    },
+    "CouponCreateDto" : {
+      "properties" : {
+        "amountTotal" : {
+          "type" : "number",
+          "example" : 2000.0
+        },
+        "clientId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "workerId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "expiryDate" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "paymentMethod" : {
+          "$ref" : "#/definitions/PaymentMethod"
+        }
+      }
+    },
+    "CouponDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/CouponCreateDto"
+      }, {
+        "properties" : {
+          "id" : {
+            "type" : "string",
+            "example" : "nekakav-guid-jedinstven-u-sustavu"
+          },
+          "code" : {
+            "type" : "string",
+            "example" : "BEUTY-CODE-2493-BAKALAR_BAKALAR"
+          },
+          "amountRemaining" : {
+            "type" : "number",
+            "example" : 1000.0
+          },
+          "workerId" : {
+            "type" : "number",
+            "example" : 1.0
+          },
+          "dateTimeCreated" : {
+            "type" : "string",
+            "example" : "20181203T121248Z"
+          },
+          "status" : {
+            "$ref" : "#/definitions/CouponStatusEnum"
+          },
+          "transactions" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/CouponTransactionDto"
+            }
+          }
+        }
+      } ]
+    },
+    "CouponDetailedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/CouponDto"
+      }, {
+        "properties" : {
+          "clientName" : {
+            "type" : "string",
+            "example" : "Željko Pervan"
+          }
+        }
+      } ]
+    },
+    "CouponsPagedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/BasePagingDto"
+      }, {
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/CouponDetailedDto"
+            }
+          }
+        }
+      } ]
+    },
+    "InvoiceItemTypeEnum" : {
+      "type" : "string",
+      "enum" : [ "service", "product", "coupon" ]
+    },
+    "ProductInvoiceItemDetailsDto" : {
+      "properties" : {
+        "productId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "productNumber" : {
+          "type" : "string",
+          "example" : "123123"
+        },
+        "productName" : {
+          "type" : "string",
+          "example" : "Naziv proizvoda"
+        }
+      }
+    },
+    "ServiceInvoiceItemDetailsDto" : {
+      "properties" : {
+        "serviceTemplateId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "serviceTemplateName" : {
+          "type" : "string",
+          "example" : "Pranje kose"
+        },
+        "serviceTemplateCategoryId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "serviceTemplateCategoryName" : {
+          "type" : "string",
+          "example" : "Ime kategorije"
+        }
+      }
+    },
+    "CouponInvoiceItemDetailsDto" : {
+      "properties" : {
+        "couponId" : {
+          "type" : "string",
+          "example" : "guid-neki"
+        },
+        "couponCode" : {
+          "type" : "string",
+          "example" : "kupon-znak-123"
+        }
+      }
+    },
+    "InvoiceItemDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "invoiceId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "dateTimeCreated" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Naziv robe koju smo prodali"
+        },
+        "workerId" : {
+          "type" : "string",
+          "example" : "1"
+        },
+        "workerName" : {
+          "type" : "string",
+          "example" : "Anto Čulo"
+        },
+        "clientId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "itemType" : {
+          "$ref" : "#/definitions/InvoiceItemTypeEnum"
+        },
+        "serviceDetails" : {
+          "$ref" : "#/definitions/ServiceInvoiceItemDetailsDto"
+        },
+        "productDetails" : {
+          "$ref" : "#/definitions/ProductInvoiceItemDetailsDto"
+        },
+        "couponDetails" : {
+          "$ref" : "#/definitions/CouponInvoiceItemDetailsDto"
+        },
+        "priceSingleNet" : {
+          "type" : "number",
+          "example" : 1000.0
+        },
+        "quantity" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "discountPercent" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "discountAmountSingleNet" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "priceSingleWithDiscountNet" : {
+          "type" : "number",
+          "example" : 900.0
+        },
+        "vatAmount" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "priceSingleGross" : {
+          "type" : "number",
+          "example" : 1100.0
+        },
+        "discountAmountSingleGross" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "priceWithDiscountSingleGross" : {
+          "type" : "number",
+          "example" : 1200.0
+        },
+        "discountAmountTotalGross" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "invoiceDiscountPercent" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "priceSingleNetWInvoiceDiscount" : {
+          "type" : "number",
+          "example" : 200.0
+        },
+        "priceSingleGrossWInvoiceDiscount" : {
+          "type" : "number",
+          "example" : 200.0
+        }
+      }
+    },
+    "InvoiceItemPagedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/BasePagingDto"
+      }, {
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/InvoiceItemDto"
+            }
+          }
+        }
+      } ]
+    },
+    "InvoiceCouponTransactionDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "example" : "guid-guid-guid"
+        },
+        "couponId" : {
+          "type" : "string",
+          "example" : "guid-guid-guid"
+        },
+        "amountReserved" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "status" : {
+          "$ref" : "#/definitions/CouponTransactionStatusEnum"
+        }
+      }
+    },
+    "InvoiceVatDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "vatId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "vatPercent" : {
+          "type" : "number",
+          "example" : 20.0
+        },
+        "vatAmount" : {
+          "type" : "number",
+          "example" : 12000.0
+        }
+      }
+    },
+    "InvoicePaymentMethodDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "paymentMethod" : {
+          "$ref" : "#/definitions/PaymentMethod"
+        },
+        "paymentMethodName" : {
+          "type" : "string",
+          "example" : "Kartice"
+        },
+        "amount" : {
+          "type" : "number",
+          "example" : 2000.0
+        }
+      }
+    },
+    "InvoiceDto" : {
+      "properties" : {
+        "id" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "dateTimeCreated" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "creatorId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "creatorName" : {
+          "type" : "string",
+          "example" : "Dario Šarić"
+        },
+        "clientId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "clientName" : {
+          "type" : "string",
+          "example" : "Tomislav Bralić"
+        },
+        "invoiceItems" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/InvoiceItemDto"
+          }
+        },
+        "couponTransactions" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/InvoiceCouponTransactionDto"
+          }
+        },
+        "vats" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/InvoiceVatDto"
+          }
+        },
+        "paymentMethods" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/InvoicePaymentMethodDto"
+          }
+        },
+        "discountPercent" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "discountMoney" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "priceNet" : {
+          "type" : "number",
+          "example" : 100.0
+        },
+        "discountAmountNet" : {
+          "type" : "number",
+          "example" : 20.0
+        },
+        "priceWithDiscountNet" : {
+          "type" : "number",
+          "example" : 20.0
+        },
+        "priceWithDiscountGross" : {
+          "type" : "number",
+          "example" : 20.0
+        },
+        "discountAmountTotalGross" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "currencyId" : {
+          "type" : "number",
+          "example" : 10.0
+        },
+        "currencyName" : {
+          "type" : "string",
+          "example" : "Euro, prijatelju"
+        },
+        "currencySymbol" : {
+          "type" : "string",
+          "example" : "€"
+        },
+        "hasServices" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "hasProducts" : {
+          "type" : "boolean",
+          "example" : false
+        },
+        "hasCoupons" : {
+          "type" : "boolean",
+          "example" : true
+        },
+        "hasCouponsApplied" : {
+          "type" : "boolean",
+          "example" : false
+        }
+      }
+    },
+    "InvoicePagedDto" : {
+      "allOf" : [ {
+        "$ref" : "#/definitions/BasePagingDto"
+      }, {
+        "properties" : {
+          "items" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/InvoiceDto"
+            }
+          }
+        }
+      } ]
+    },
+    "DashboardDto" : {
+      "properties" : {
+        "bookingsPerDay" : {
+          "type" : "number",
+          "example" : 2.8
+        },
+        "pendingAppointments" : {
+          "type" : "number",
+          "example" : 30.0
+        },
+        "exmployees" : {
+          "type" : "number",
+          "example" : 4.0
+        },
+        "revenue" : {
+          "type" : "number",
+          "example" : 750000.0
+        }
+      }
+    },
+    "DashboardConversionItemDto" : {
+      "properties" : {
+        "workerId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "workerName" : {
+          "type" : "string",
+          "example" : "Bojan Bogdanović"
+        },
+        "value" : {
+          "type" : "number",
+          "example" : 15.0
+        }
+      }
+    },
+    "DashboardConversionDto" : {
+      "properties" : {
+        "dateFrom" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "dateTo" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "values" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/DashboardConversionItemDto"
+          }
+        }
+      }
+    },
+    "DashboardCustomersDto" : {
+      "properties" : {
+        "dateFrom" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "dateTo" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "new" : {
+          "type" : "number",
+          "example" : 8.0
+        },
+        "returning" : {
+          "type" : "number",
+          "example" : 20.0
+        },
+        "total" : {
+          "type" : "number",
+          "example" : 28.0
+        }
+      }
+    },
+    "ReportsDailyDto" : {
+      "properties" : {
+        "date" : {
+          "type" : "string",
+          "example" : "20181203T121248Z"
+        },
+        "totalRevenue" : {
+          "type" : "number",
+          "example" : 50000.0
+        },
+        "totalRevenueIncVat" : {
+          "type" : "number",
+          "example" : 50000.0
+        },
+        "totalRevenueProducts" : {
+          "type" : "number",
+          "example" : 50000.0
+        },
+        "totalRevenueServices" : {
+          "type" : "number",
+          "example" : 50000.0
+        },
+        "totalCouponsSold" : {
+          "type" : "number",
+          "example" : 50000.0
+        },
+        "totalDiscount" : {
+          "type" : "number",
+          "example" : 50000.0
+        },
+        "overviewInvoices" : {
+          "type" : "number",
+          "example" : 50.0
+        },
+        "overviewAppointments" : {
+          "type" : "number",
+          "example" : 50.0
+        },
+        "overviewNewCustomers" : {
+          "type" : "number",
+          "example" : 50.0
+        },
+        "paymentCash" : {
+          "type" : "number",
+          "example" : 500.0
+        },
+        "paymentCard" : {
+          "type" : "number",
+          "example" : 500.0
+        },
+        "paymentBank" : {
+          "type" : "number",
+          "example" : 500.0
+        },
+        "paymentCoupon" : {
+          "type" : "number",
+          "example" : 500.0
+        }
+      }
+    },
+    "CurrentUserDto" : {
+      "properties" : {
+        "guid" : {
+          "type" : "string",
+          "example" : "neki-guid"
+        },
+        "firstName" : {
+          "type" : "string",
+          "example" : "Željko"
+        },
+        "lastName" : {
+          "type" : "string",
+          "example" : "Pervan"
+        },
+        "email" : {
+          "type" : "string",
+          "example" : "em@ail.com"
+        },
+        "workerId" : {
+          "type" : "number",
+          "example" : 1.0
+        }
+      }
+    },
+    "MobileInitialDataDto" : {
+      "properties" : {
+        "serviceTemplateCategories" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ServiceTemplateCategoryDto"
+          }
+        },
+        "serviceTemplates" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ServiceTemplateDto"
+          }
+        },
+        "products" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductDto"
+          }
+        },
+        "productCategories" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ProductCategoryDetailedDto"
+          }
+        },
+        "workers" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WorkerDto"
+          }
+        },
+        "clientNoteCategories" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ClientNoteCategoryDto"
+          }
+        },
+        "currentUserDto" : {
+          "$ref" : "#/definitions/CurrentUserDto"
+        },
+        "companyId" : {
+          "type" : "number",
+          "example" : 1.0
+        },
+        "companyName" : {
+          "type" : "string",
+          "example" : "Vesela firma d.o.o."
+        },
+        "appSettings" : {
+          "$ref" : "#/definitions/AppSettingsBaseDto"
+        },
+        "currencies" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/CurrencyDto"
+          }
+        },
+        "vatRates" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/VatRateDto"
+          }
+        },
+        "paymentMethods" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/PaymentMethod"
+          }
+        },
+        "sumupApiKey" : {
+          "type" : "string",
+          "example" : "api-key-huhuhu"
+        }
+      }
+    },
+    "items" : {
+      "properties" : {
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "example" : 1.0
+          }
+        }
+      }
+    },
+    "items_1" : {
+      "properties" : {
+        "items" : {
+          "type" : "array",
+          "items" : {
+            "type" : "number",
+            "example" : 1.0
+          }
+        }
+      }
+    },
+    "status" : {
+      "properties" : {
+        "status" : {
+          "$ref" : "#/definitions/CouponTransactionStatusEnum"
+        }
+      }
+    },
+    "body" : {
+      "properties" : {
+        "photo" : {
+          "type" : "string",
+          "example" : "base64String"
+        },
+        "asProfilePhoto" : {
+          "type" : "boolean",
+          "example" : true
+        }
+      }
+    },
+    "inline_response_200" : {
+      "properties" : {
+        "appointments" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/AppointmentDto"
+          }
+        },
+        "breaks" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/BreakDto"
+          }
+        }
+      }
+    },
+    "status_1" : {
+      "properties" : {
+        "status" : {
+          "$ref" : "#/definitions/AppointmentStatusEnum"
+        }
+      }
+    }
+  }
+}
