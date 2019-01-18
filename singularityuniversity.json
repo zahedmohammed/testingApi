@@ -1,0 +1,1433 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Singularity Univserity project API",
+    "version" : "1.0.0",
+    "title" : "Simple Inventory API",
+    "contact" : {
+      "email" : "matt@sapienexperience.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host" : "virtserver.swaggerhub.com",
+  "basePath" : "/SapienExperience/SingularityUniversity/1.0.0",
+  "tags" : [ {
+    "name" : "Admins Only",
+    "description" : "Secured Admin-only calls. Can only be accessed by admins with edit permissions. We may not need API endpoints for these, as they may be handled through the admin portal"
+  }, {
+    "name" : "Facilitators and Admins",
+    "description" : "Available to SU facilitators, who can create games but not edit content, for example"
+  }, {
+    "name" : "Players",
+    "description" : "Operations available to players during gameplay"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/admins" : {
+      "get" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "gets list of admins",
+        "description" : "get list of all admins\n",
+        "operationId" : "getAllAdmins",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "get all admins",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Admin"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "adds an admin",
+        "description" : "Adds a Admin to the system.",
+        "operationId" : "createAdmin",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "admin",
+          "description" : "admin to add",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Admin"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "admin created",
+            "schema" : {
+              "$ref" : "#/definitions/Admin"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/admins/{id}" : {
+      "get" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "gets a Admin",
+        "description" : "gets an Admin from the system",
+        "operationId" : "getAdminById",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Admin ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got admin",
+            "schema" : {
+              "$ref" : "#/definitions/Admin"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "updates a Admin",
+        "description" : "Adds a Admin to the system",
+        "operationId" : "updateAdmin",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Admin ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "admin updated",
+            "schema" : {
+              "$ref" : "#/definitions/Admin"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "deletes a Admin",
+        "description" : "Removes a admin session from the system",
+        "operationId" : "deleteAdmin",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Admin ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "admin deleted"
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/facilitators" : {
+      "get" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "gets list of facilitators",
+        "description" : "get list of all facilitators\n",
+        "operationId" : "getAllFacilitators",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "get all facilitators",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Facilitator"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "adds an facilitator",
+        "description" : "Adds a Facilitator to the system.",
+        "operationId" : "createFacilitator",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "facilitator",
+          "description" : "facilitator to add",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Facilitator"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "facilitator created",
+            "schema" : {
+              "$ref" : "#/definitions/Facilitator"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/facilitators/{id}" : {
+      "get" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "gets a Facilitator",
+        "description" : "gets an Facilitator from the system",
+        "operationId" : "getFacilitatorById",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Facilitator ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got facilitator",
+            "schema" : {
+              "$ref" : "#/definitions/Facilitator"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "updates a Facilitator",
+        "description" : "Adds a Facilitator to the system",
+        "operationId" : "updateFacilitator",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Facilitator ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "facilitator updated",
+            "schema" : {
+              "$ref" : "#/definitions/Facilitator"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "deletes a Facilitator",
+        "description" : "Removes a facilitator session from the system",
+        "operationId" : "deleteFacilitator",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Facilitator ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "facilitator deleted"
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/games" : {
+      "get" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "gets list of games",
+        "description" : "get list of all games\n",
+        "operationId" : "getAllGames",
+        "produces" : [ "application/json" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "get all games",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/GameSession"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "adds an game",
+        "description" : "Adds a GameSession to the system",
+        "operationId" : "createGameSession",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "gameSession",
+          "description" : "game item to add",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/GameSession"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "game created",
+            "schema" : {
+              "$ref" : "#/definitions/GameSession"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/games/{id}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "gets a GameSession",
+        "description" : "gets a GameSession from the system",
+        "operationId" : "getGameSession",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got game",
+            "schema" : {
+              "$ref" : "#/definitions/GameSession"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "updates a GameSession",
+        "description" : "Adds a GameSession to the system",
+        "operationId" : "updateGameSession",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "game updated",
+            "schema" : {
+              "$ref" : "#/definitions/GameSession"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "deletes a GameSession",
+        "description" : "Removes a game session from the system",
+        "operationId" : "deleteGameSession",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "game deleted"
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/games/{gameId}/subround/{subRoundId}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "checks the current subround of a game to see if it has changed",
+        "description" : "Given a subround, sets both round and subround ids of a game, returns a subround",
+        "operationId" : "checkSubRound",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "gameId",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "subRoundId",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "has game changed subrounds?",
+            "schema" : {
+              "type" : "boolean",
+              "example" : true
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/content" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "get all content. If tags are provided, get filterted content",
+        "description" : "gets all content, unless tags are provided",
+        "operationId" : "getAllContent",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "query",
+          "description" : "Array of Tags used to filter queries for Questions and Content. Only Questions or Content with relationships to all tags should be returned",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "get all content, or get content by tags",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Content"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "500" : {
+            "description" : "couldn't get content. server-side error"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "Creates a new Content",
+        "description" : "Admin protected route. Admins can create content, but facilitators cannot",
+        "operationId" : "createContent",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "content",
+          "description" : "Content item to add. Relationship should be created in DB between the content and any tags provided",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Content"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "content created",
+            "schema" : {
+              "$ref" : "#/definitions/Content"
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "500" : {
+            "description" : "couldn't created content. server-side error"
+          }
+        }
+      }
+    },
+    "/content/{id}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "gets a piece of content by id",
+        "operationId" : "getContentById",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Content ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got content",
+            "schema" : {
+              "$ref" : "#/definitions/Content"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "updates a piece of content",
+        "description" : "updates a piece of Content, including all relationships to tags.",
+        "operationId" : "updateContent",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "game updated",
+            "schema" : {
+              "$ref" : "#/definitions/Content"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "deletes a piece of Content",
+        "description" : "Removes a piece of Content from the system",
+        "operationId" : "deleteContent",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Content ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "content deleted"
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/questions" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "get all questions. If tags provided, get filtered questions",
+        "description" : "gets all questions, unless tags are provided",
+        "operationId" : "getAllQuestion",
+        "parameters" : [ {
+          "name" : "tags",
+          "in" : "query",
+          "description" : "Array of Tags used to filter queries for Questions and Content. Only Questions or Content with relationships to all tags should be returned",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "get all questions, or get Question by tags",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Question"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "500" : {
+            "description" : "couldn't get question. server-side error"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "Creates a new Question",
+        "description" : "Admin protected route. Admins can create Question, but facilitators cannot",
+        "operationId" : "createQuestion",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "Question",
+          "description" : "Question item to add. Relationship should be created in DB between the Question and any tags provided",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Question"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Question created",
+            "schema" : {
+              "type" : "object"
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          },
+          "500" : {
+            "description" : "couldn't created Question. server-side error"
+          }
+        }
+      }
+    },
+    "/questions/{id}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "gets a Question by id",
+        "operationId" : "getQuestionById",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Question ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got Question",
+            "schema" : {
+              "$ref" : "#/definitions/Question"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "updates a piece of Question",
+        "description" : "updates a Question, including all relationships to tags.",
+        "operationId" : "updateQuestion",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "GameSession ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "question updated",
+            "schema" : {
+              "$ref" : "#/definitions/Question"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "500" : {
+            "description" : "question update failed"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Admins Only" ],
+        "summary" : "deletes a piece of Question",
+        "description" : "Removes a piece of Question from the system",
+        "operationId" : "deleteQuestion",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Question ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "Question deleted"
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          }
+        }
+      }
+    },
+    "/answers" : {
+      "get" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "gets list of all answers",
+        "description" : "get list of all answers\n",
+        "operationId" : "getAllAnswers",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "gameId",
+          "in" : "query",
+          "description" : "ID of a GameSession. If provided, filters returned Answers to only those from given Game",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "got all answers",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Answer"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Players" ],
+        "summary" : "adds an answer to a question",
+        "description" : "Adds an Answer to the system, and puts its value in the appropriate spreadsheet cell based on the team and question\n",
+        "operationId" : "createAnswer",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "answer",
+          "description" : "answer item to add",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Answer"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "answer created",
+            "schema" : {
+              "$ref" : "#/definitions/Answer"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/answers/{answerId}" : {
+      "put" : {
+        "tags" : [ "Players" ],
+        "summary" : "updates an answer to a question",
+        "description" : "Updates an Answer and puts its value in the appropriate spreadsheet cell based on the team and question\n",
+        "operationId" : "updateAnswer",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "answerId",
+          "in" : "path",
+          "description" : "Answer ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "in" : "body",
+          "name" : "answer",
+          "description" : "answer item to add",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Answer"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "answer created",
+            "schema" : {
+              "$ref" : "#/definitions/Answer"
+            }
+          },
+          "400" : {
+            "description" : "invalid input, object invalid"
+          },
+          "409" : {
+            "description" : "an existing item already exists"
+          }
+        }
+      }
+    },
+    "/answers/team/{teamId}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "gets a Team's answers",
+        "description" : "get list of all of a Team's answers. Should we, given the short time, worry about trying to prevent teams from querying each others' answers?\n",
+        "operationId" : "getAnswersByTeam",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "teamId",
+          "in" : "path",
+          "description" : "Team ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "roundId",
+          "in" : "query",
+          "description" : "ID of a round. If provided, filters returned Answers to only those from given round",
+          "required" : false,
+          "type" : "string",
+          "format" : "uuid"
+        }, {
+          "name" : "subRoundId",
+          "in" : "query",
+          "description" : "ID of a SubRound. If provided, filters returned Answers to only those from given SubRound",
+          "required" : false,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "got all answers",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/Answer"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    },
+    "/role" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "get a list of GameRoles that can be played in the game",
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "got all roles",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "$ref" : "#/definitions/GameRole"
+              }
+            }
+          },
+          "400" : {
+            "description" : "bad input parameter"
+          }
+        }
+      }
+    },
+    "/scores/{teamId}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "gets the contents of the scores sheet from a team's Google sheet",
+        "description" : "gets the contents of the scores sheet from a team's Google sheet",
+        "operationId" : "getTeamScores",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "teamId",
+          "in" : "path",
+          "description" : "Team ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got scores",
+            "schema" : {
+              "$ref" : "#/definitions/Score"
+            }
+          },
+          "500" : {
+            "description" : "couldn't pull scores from sheet"
+          }
+        }
+      }
+    },
+    "/facilitatorscores/{gameId}" : {
+      "get" : {
+        "tags" : [ "Facilitators and Admins" ],
+        "summary" : "gets the contents of the scores sheet from all of the teams' for a given game's Google sheets",
+        "operationId" : "getGameScores",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "gameId",
+          "in" : "path",
+          "description" : "Game ID",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got scores",
+            "schema" : {
+              "$ref" : "#/definitions/Score"
+            }
+          },
+          "500" : {
+            "description" : "couldn't pull scores from sheet"
+          }
+        }
+      }
+    },
+    "/teams/{gamePIN}" : {
+      "get" : {
+        "tags" : [ "Players" ],
+        "summary" : "gets the contents of the scores sheet from all of the teams' for a given game's Google sheets",
+        "operationId" : "loginTeam",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "gamePIN",
+          "in" : "path",
+          "description" : "Team's game PIN",
+          "required" : true,
+          "type" : "string",
+          "format" : "uuid"
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "got teams",
+            "schema" : {
+              "$ref" : "#/definitions/Team"
+            }
+          },
+          "500" : {
+            "description" : "couldn't pull scores from sheet"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "GameSession" : {
+      "type" : "object",
+      "required" : [ "createdById", "currentRoundId", "currentSubRoundId", "datePlayed", "id", "location" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "location" : {
+          "type" : "string",
+          "example" : "Mars"
+        },
+        "datePlayed" : {
+          "type" : "string",
+          "format" : "date-time",
+          "example" : "2016-08-29T09:12:33.001Z"
+        },
+        "createdById" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "createdBy" : {
+          "$ref" : "#/definitions/Admin"
+        },
+        "teams" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Team"
+          }
+        },
+        "currentRoundId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851",
+          "description" : "ID of the round this game is currently"
+        },
+        "currentSubRoundId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851",
+          "description" : "ID of the subround this game is currently"
+        },
+        "currentRound" : {
+          "$ref" : "#/definitions/Round"
+        },
+        "currentSubRound" : {
+          "$ref" : "#/definitions/SubRound"
+        }
+      }
+    },
+    "Admin" : {
+      "required" : [ "email", "id", "name" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-da701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Joe Admin"
+        },
+        "email" : {
+          "type" : "string",
+          "format" : "url",
+          "example" : "matt@something.com"
+        },
+        "password" : {
+          "type" : "string",
+          "example" : "blahblahdblah"
+        },
+        "created_by_id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-da701748f0851"
+        }
+      }
+    },
+    "Facilitator" : {
+      "required" : [ "email", "id", "name" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-da701748f0851"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "Beth Facilitator"
+        },
+        "email" : {
+          "type" : "string",
+          "format" : "url",
+          "example" : "beth@something.com"
+        },
+        "password" : {
+          "type" : "string",
+          "example" : "blahblahdblah"
+        },
+        "created_by_id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-da701748f0851"
+        }
+      }
+    },
+    "Round" : {
+      "required" : [ "id", "number", "title" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "number" : {
+          "type" : "integer",
+          "example" : 2
+        },
+        "title" : {
+          "type" : "string",
+          "example" : "Round Two - the sequel to round 1"
+        },
+        "subRounds" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/SubRound"
+          }
+        }
+      }
+    },
+    "SubRound" : {
+      "required" : [ "id", "roundId", "subRoundLetter", "title" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "roundId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "title" : {
+          "type" : "string",
+          "example" : "First, and possibly only, subround in round 2"
+        },
+        "subRoundLetter" : {
+          "type" : "string",
+          "example" : "B"
+        }
+      }
+    },
+    "Team" : {
+      "required" : [ "gameSessionId", "number", "spreadsheetId" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "number" : {
+          "type" : "number",
+          "example" : 2.0
+        },
+        "gamePIN" : {
+          "type" : "number",
+          "example" : 1123.0
+        },
+        "gameSessionId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "spreadsheetId" : {
+          "type" : "string",
+          "example" : "1z6mVeV0sfkvR07LYUW64_tQtd2DeZJVOWTBtB_z2G8A"
+        }
+      }
+    },
+    "Tag" : {
+      "required" : [ "createdById", "id", "text" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "createdById" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "text" : {
+          "type" : "string",
+          "example" : "Round1"
+        }
+      }
+    },
+    "Content" : {
+      "required" : [ "createdById", "id", "text" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "text" : {
+          "type" : "string",
+          "example" : "valid html will go here. The client will sanitize."
+        },
+        "createdById" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "tags" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Tag"
+          }
+        }
+      }
+    },
+    "Question" : {
+      "required" : [ "createdById", "id", "spreadSheetCell", "text", "type" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "type" : {
+          "type" : "string",
+          "example" : "Slider",
+          "enum" : [ "Slider", "MultipleChoice", "SingleChoice", "FreeText", "Number" ]
+        },
+        "text" : {
+          "type" : "string"
+        },
+        "spreadSheetCell" : {
+          "type" : "string",
+          "example" : "jdfjl;a/93458asdf"
+        },
+        "possibleAnswers" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/PossibleAnswer"
+          }
+        },
+        "tags" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/Tag"
+          }
+        },
+        "createdById" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        }
+      }
+    },
+    "PossibleAnswer" : {
+      "required" : [ "id", "questionId", "text" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "text" : {
+          "type" : "string",
+          "example" : "the answer to your question"
+        },
+        "questionId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "min" : {
+          "type" : "number",
+          "example" : 0.0,
+          "description" : "If question requires numerical response, this is the lowest valid value"
+        },
+        "max" : {
+          "type" : "number",
+          "example" : 0.0,
+          "description" : "If question requires numerical response, this is the highest valid value"
+        },
+        "createdById" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        }
+      }
+    },
+    "Answer" : {
+      "required" : [ "gameRoleId", "id", "possibleAnswerId", "questionId", "subRoundId", "teamId", "value" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "questionId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "teamId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "gameRoleId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "possibleAnswerId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "subRoundId" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "value" : {
+          "type" : "string"
+        }
+      }
+    },
+    "GameRole" : {
+      "required" : [ "id", "round2Label", "round3Label", "round4Label", "round5Label" ],
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "format" : "uuid",
+          "example" : "d290f1ee-6c54-4b01-90e6-d701748f0851"
+        },
+        "round2Label" : {
+          "type" : "string",
+          "example" : "CEO"
+        },
+        "round3Label" : {
+          "type" : "string",
+          "example" : "Investor"
+        },
+        "round4Label" : {
+          "type" : "string",
+          "example" : "Customer"
+        },
+        "round5Label" : {
+          "type" : "string",
+          "example" : "CEO"
+        }
+      }
+    },
+    "Score" : {
+      "properties" : {
+        "rows" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ScoreRow"
+          }
+        }
+      }
+    },
+    "ScoreRow" : {
+      "properties" : {
+        "rows" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      },
+      "description" : "wrapper class used to return spreadsheet data to client. May or may not be needed, but I did want to document the interface we can expect from the Google Sheets API"
+    }
+  },
+  "parameters" : {
+    "tagsQuery" : {
+      "name" : "tags",
+      "in" : "query",
+      "description" : "Array of Tags used to filter queries for Questions and Content. Only Questions or Content with relationships to all tags should be returned",
+      "required" : false,
+      "type" : "string"
+    }
+  }
+}
