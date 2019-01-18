@@ -1,0 +1,797 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "The main API behind the Funnels Framework SDK",
+    "version" : "0.0.1",
+    "title" : "dev-crm"
+  },
+  "host" : "w60t3w5dzd.execute-api.us-east-1.amazonaws.com",
+  "basePath" : "/dev",
+  "tags" : [ {
+    "name" : "Authorization",
+    "description" : "Registration and Authorization of API consumers"
+  }, {
+    "name" : "Apps and Publishers",
+    "description" : "Publisher and App Related Methods"
+  }, {
+    "name" : "Customers",
+    "description" : "Customer Related Methods"
+  }, {
+    "name" : "Files",
+    "description" : "File Storage Related Methods"
+  }, {
+    "name" : "Funnels",
+    "description" : "Funnel Related Methods"
+  }, {
+    "name" : "Orders",
+    "description" : "Order Related Methods"
+  }, {
+    "name" : "Promotions",
+    "description" : "Promotion Related Methods"
+  }, {
+    "name" : "Payments",
+    "description" : "Payments Related Methods"
+  }, {
+    "name" : "Shipping",
+    "description" : "Shipping Related Methods"
+  }, {
+    "description" : "Used in rebuild-swagger.js to remove methods with this tag from the docs"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/app/settings" : {
+      "get" : {
+        "tags" : [ "Apps and Publishers" ],
+        "description" : "Gets the application settings for the App and Publisher that are encrypted in the token passed in the Authorization header.  \n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Use Bearer Authorization and pass a JWT token received by POSTing to /tokens",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/GetAppSettingsResponse"
+            }
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/customers" : { },
+    "/customers/find" : { },
+    "/customers/paymentmethods/{cardId}/setdefault" : {
+      "post" : {
+        "tags" : [ "Payments" ],
+        "parameters" : [ {
+          "name" : "cardId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/customers/shippingaddresses" : {
+      "post" : {
+        "tags" : [ "Customers" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/customers/shippingaddresses/list" : {
+      "post" : {
+        "tags" : [ "Customers" ],
+        "parameters" : [ ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/customers/shippingaddresses/{addressId}/setdefault" : {
+      "post" : {
+        "tags" : [ "Customers" ],
+        "parameters" : [ {
+          "name" : "addressId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/customers/{customerId}" : { },
+    "/customers/{customerId}/orders" : { },
+    "/customers/{customerId}/paymentmethods" : {
+      "post" : {
+        "tags" : [ "Payments" ],
+        "parameters" : [ {
+          "name" : "customerId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/customers/{customerId}/paymentmethods/list" : {
+      "get" : {
+        "tags" : [ "Payments" ],
+        "parameters" : [ {
+          "name" : "customerId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/files/upload" : {
+      "post" : {
+        "tags" : [ "Files" ],
+        "summary" : "Get a pre-signed upload URL.",
+        "description" : "Use this method to get a URL that can be used to directly upload a file to the App's cloud storage.\n",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Use Bearer Authorization and pass a JWT token received by POSTing to /tokens",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "GetDirectUploadUrlRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/GetDirectUploadUrlRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The URL for the upload. The URL is valid for 5 minutes.\n"
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          },
+          "401" : {
+            "description" : "The token provided is invalid or expired"
+          },
+          "403" : {
+            "description" : "The token is not authorized to call this method"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/funnels/{funnelId}/track" : {
+      "post" : {
+        "tags" : [ "Funnels" ],
+        "summary" : "Log an event performed by a customer.",
+        "description" : "Saves the event in the customer's funnel. All events for a specific customer are retreivable by customer id GETting /funnel/{id}.\n",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "funnelId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "LogFunnelItemRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/LogFunnelItemRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "200 response",
+            "schema" : {
+              "$ref" : "#/definitions/StringIdResponse"
+            }
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          },
+          "401" : {
+            "description" : "The token provided is invalid or expired"
+          },
+          "403" : {
+            "description" : "The token is not authorized to call this method"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/orders" : {
+      "post" : {
+        "tags" : [ "Orders" ],
+        "summary" : "Create a new cart for the logged in customer",
+        "description" : "This method should be called before any other method that handles a customer order. OrderStatus.CART is the first status of every order.\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Use Bearer Authorization and pass a JWT token received by POSTing to /tokens",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain the Id of the created order.\n"
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/orders/{orderId}" : { },
+    "/orders/{orderId}/coupons" : {
+      "post" : {
+        "tags" : [ "Orders" ],
+        "summary" : "Apply a coupon code to the order",
+        "description" : "Use this method to create a discount on the order by applying a coupon code. The returned order containst the discount and re-calculated amounts for Discount, Subtotal and Total.\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain the entire order.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Order"
+            }
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/orders/{orderId}/products" : {
+      "post" : {
+        "tags" : [ "Orders" ],
+        "summary" : "Add a product to the cart (cart is an order, its the same thing. so orderId and cartId are interchangable)",
+        "description" : "Use this method to add a product to a cart. If the product is configurable, the configuration must be valid.\n",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Use Bearer Authorization and pass a JWT token received by POSTing to /tokens",
+          "required" : false,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "AddProductToCartRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/AddProductToCartRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain the entire order.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Order"
+            }
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/orders/{orderId}/products/{orderItemId}" : {
+      "put" : {
+        "tags" : [ "Orders" ],
+        "summary" : "Update the configuration of a product in the cart.",
+        "description" : "Use this method to update a product configruation in the cart.\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "orderItemId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "orderId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Use Bearer Authorization and pass a JWT token received by POSTing to /tokens",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain the entire order.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Order"
+            }
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      },
+      "delete" : {
+        "tags" : [ "Orders" ],
+        "summary" : "Remove a product from the cart (cart is an order, its the same thing. so orderId and cartId are interchangable)",
+        "description" : "Use this method to remove a product from a cart.\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "orderItemId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "orderId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Use Bearer Authorization and pass a JWT token received by POSTing to /tokens",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain the entire order.\n",
+            "schema" : {
+              "$ref" : "#/definitions/Order"
+            }
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/orders/{orderId}/status/ready" : { },
+    "/orders/{orderId}/status/shipped" : { },
+    "/orders/{orderId}/submit" : {
+      "post" : {
+        "tags" : [ "Orders" ],
+        "summary" : "Submits an order.",
+        "description" : "This method changes an order status to NEW. Orders with status new will be picked up by the payment system.\n",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "orderId",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain 'true'\n"
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/products" : { },
+    "/products/sku/{sku}" : { },
+    "/products/{productId}" : { },
+    "/promotions" : { },
+    "/promotions/{promotionId}" : { },
+    "/promotions/{promotionId}/code" : { },
+    "/shipping/estimate/{currency}" : {
+      "post" : {
+        "tags" : [ "Shipping" ],
+        "parameters" : [ {
+          "name" : "currency",
+          "in" : "path",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          },
+          "400" : {
+            "description" : "Validation Error"
+          }
+        },
+        "security" : [ {
+          "authorize" : [ ]
+        } ]
+      }
+    },
+    "/tokens" : {
+      "post" : {
+        "tags" : [ "Authorization" ],
+        "description" : "Initialize an API session for an end customer, using a DeviceID as the customer identifier \n",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "CreateCustomerTokenRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CreateCustomerTokenRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain a JWT token to be passed in all subsequent API calls in the Authorization header\n"
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        }
+      }
+    },
+    "/tokens/user" : {
+      "post" : {
+        "tags" : [ "Authorization" ],
+        "description" : "Initialize an API session for a backoffice user, using Email and Password as credentials\n",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "CreateUserTokenRequest",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CreateUserTokenRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The response body will contain a JWT token to be passed in all subsequent API calls in the Authorization header\n"
+          },
+          "400" : {
+            "description" : "Response body will contain a ValidationError object",
+            "schema" : {
+              "$ref" : "#/definitions/ValidationError"
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "authorizeUser" : {
+      "type" : "apiKey",
+      "name" : "Authorization",
+      "in" : "header",
+      "x-amazon-apigateway-authtype" : "custom"
+    },
+    "authorize" : {
+      "type" : "apiKey",
+      "name" : "Authorization",
+      "in" : "header",
+      "x-amazon-apigateway-authtype" : "custom"
+    }
+  },
+  "definitions" : {
+    "Order" : {
+      "type" : "object",
+      "properties" : {
+        "Status" : {
+          "type" : "string"
+        },
+        "Discount" : {
+          "type" : "number"
+        },
+        "AppliedCouponCodes" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "CreatedAt" : {
+          "type" : "string"
+        },
+        "ShippingAddress" : {
+          "$ref" : "#/definitions/Address"
+        },
+        "Total" : {
+          "type" : "number"
+        },
+        "Subtotal" : {
+          "type" : "number"
+        },
+        "ShippingCost" : {
+          "type" : "number"
+        },
+        "Items" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/OrderItem"
+          }
+        },
+        "CustomerId" : {
+          "type" : "string"
+        }
+      }
+    },
+    "CreateUserTokenRequest" : {
+      "type" : "object",
+      "properties" : {
+        "ApiKey" : {
+          "type" : "string"
+        },
+        "Email" : {
+          "type" : "string"
+        },
+        "ApiSecret" : {
+          "type" : "string"
+        },
+        "Password" : {
+          "type" : "string"
+        }
+      }
+    },
+    "GetDirectUploadUrlRequest" : {
+      "type" : "object",
+      "properties" : {
+        "ContentType" : {
+          "type" : "string"
+        },
+        "Filename" : {
+          "type" : "string"
+        }
+      }
+    },
+    "StringIdResponse" : {
+      "type" : "string"
+    },
+    "Address" : {
+      "type" : "object",
+      "properties" : {
+        "Company" : {
+          "type" : "string"
+        },
+        "State" : {
+          "type" : "string"
+        },
+        "Address2" : {
+          "type" : "string"
+        },
+        "Zipcode" : {
+          "type" : "string"
+        },
+        "Country" : {
+          "type" : "string"
+        },
+        "Address1" : {
+          "type" : "string"
+        },
+        "City" : {
+          "type" : "string"
+        },
+        "Name" : {
+          "type" : "string"
+        }
+      }
+    },
+    "AddProductToCartRequest" : {
+      "type" : "object",
+      "properties" : {
+        "Configuration" : {
+          "type" : "object",
+          "properties" : { }
+        },
+        "Quantity" : {
+          "type" : "number"
+        },
+        "SKU" : {
+          "type" : "string"
+        }
+      }
+    },
+    "OrderItem" : {
+      "type" : "object",
+      "properties" : {
+        "Configuration" : {
+          "type" : "object",
+          "properties" : { }
+        },
+        "Price" : {
+          "type" : "number"
+        },
+        "Title" : {
+          "type" : "string"
+        },
+        "Quantity" : {
+          "type" : "number"
+        },
+        "Id" : {
+          "type" : "string"
+        },
+        "SKU" : {
+          "type" : "string"
+        }
+      }
+    },
+    "LogFunnelItemRequest" : {
+      "type" : "object",
+      "properties" : {
+        "FunnelName" : {
+          "type" : "string"
+        },
+        "EventName" : {
+          "type" : "string"
+        },
+        "EventData" : {
+          "type" : "object",
+          "properties" : { }
+        }
+      }
+    },
+    "CreateCustomerTokenRequest" : {
+      "type" : "object",
+      "properties" : {
+        "ApiKey" : {
+          "type" : "string"
+        },
+        "DeviceId" : {
+          "type" : "string"
+        }
+      }
+    },
+    "ValidationError" : {
+      "type" : "object",
+      "properties" : {
+        "stack" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "message" : {
+          "type" : "string"
+        }
+      }
+    },
+    "GetAppSettingsResponse" : {
+      "type" : "object",
+      "properties" : {
+        "Pricing" : {
+          "type" : "object",
+          "properties" : { }
+        },
+        "Theme" : {
+          "type" : "object",
+          "properties" : { }
+        }
+      }
+    }
+  }
+}
