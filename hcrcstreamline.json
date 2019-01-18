@@ -1,0 +1,3295 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "This API serves clients ordering checks using Harland Clarke print services.\n",
+    "version" : "16",
+    "title" : "Harland Clarke Checks Web API",
+    "license" : {
+      "name" : "Copyright Harland Clarke Holdings (2018). All rights reserved."
+    }
+  },
+  "host" : "qaapi.ordermychecks.com",
+  "basePath" : "/smservices",
+  "schemes" : [ "https" ],
+  "consumes" : [ "application/json", "text/xml" ],
+  "produces" : [ "application/json", "text/xml" ],
+  "paths" : {
+    "/oauth/token" : {
+      "get" : {
+        "tags" : [ "Authentication" ],
+        "summary" : "Acquires an authorization token given an account number and transit routing number.",
+        "operationId" : "getToken",
+        "parameters" : [ {
+          "name" : "grant_type",
+          "in" : "query",
+          "description" : "The grant_type. This is always 'password'",
+          "required" : true,
+          "type" : "string",
+          "default" : "password"
+        }, {
+          "name" : "client_id",
+          "in" : "query",
+          "description" : "The client Id assigned to the caller (Obtained from the API Manager and assigned to the application).",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "username",
+          "in" : "query",
+          "description" : "The customer's account number.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "password",
+          "in" : "query",
+          "description" : "The customer's transit routing number.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "scope",
+          "in" : "query",
+          "description" : "The security scope for the token e.g. 'checks'.",
+          "required" : true,
+          "type" : "string",
+          "default" : "checks"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/Authorization"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/institution/{customerId}" : {
+      "post" : {
+        "tags" : [ "Institution" ],
+        "summary" : "Fetches institution specific branding information for a customer.",
+        "description" : "Given a customerId, get details of the institution. This service fetches the details of the institution identified by the given routing number",
+        "operationId" : "getInstitution",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Defaults that should be applied to the institution settings.\n",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/IntegratedMessage"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/Institution"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid transit routing number or customerId",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/order/lastrepriced/{customerId}" : {
+      "post" : {
+        "tags" : [ "Order" ],
+        "summary" : "Get Last Order Repriced",
+        "description" : "Fetch the customer's last order, repriced, and with suitable substitutes for any unavailable products. Note that the order includes line items for the check product and accessories ordered on the same day This service fetches the full details the last order, repriced, with any unavailable products substituted with suitable replacements.",
+        "operationId" : "getLastOrderRepriced",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Defaults that should be applied to the last order before repricing it.\n",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/IntegratedMessage"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Last order was found and repriced",
+            "schema" : {
+              "$ref" : "#/definitions/Order"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or there is no historical order.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/order/price" : {
+      "post" : {
+        "tags" : [ "Order" ],
+        "summary" : "(Re)calculate the price.",
+        "description" : "(Re)calculate the prices of the various line items, shipping options, taxes etc. of the order.",
+        "operationId" : "priceOrder",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "The order to be priced",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Order"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The order was successfully priced. The service recalculates all prices, taxes etc.",
+            "schema" : {
+              "$ref" : "#/definitions/PriceConfirmation"
+            }
+          },
+          "202" : {
+            "description" : "The order was only partially priced. The error structure indicates the reason for the partial price update. This is a platform specific response that may occur when the platform treats line items as orders in their own right.\n",
+            "schema" : {
+              "$ref" : "#/definitions/PriceConfirmation"
+            }
+          },
+          "400" : {
+            "description" : "The system has refused to price the order because the body is invalid (format errors).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/order" : {
+      "put" : {
+        "tags" : [ "Order" ],
+        "summary" : "Submit the order for fulfillment.",
+        "description" : "Fetch the customers last order, repriced, and with suitable substitutes for any unavailable products. This service fetches the full details the last order, repriced, with any unavailable products substituted with suitable replacements.",
+        "operationId" : "submitOrder",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "The order to be submitted",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/Order"
+          }
+        } ],
+        "responses" : {
+          "201" : {
+            "description" : "The order was successfully validated and accepted.",
+            "schema" : {
+              "$ref" : "#/definitions/Confirmations"
+            }
+          },
+          "202" : {
+            "description" : "The order was successfully validated but only partially executed. This is a platform specific response that may occur when the platform treats line items as orders in their own right.",
+            "schema" : {
+              "$ref" : "#/definitions/Confirmations"
+            }
+          },
+          "400" : {
+            "description" : "The system has rejected the order because the body is not valid (format errors).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/shippingoptions/{customerId}/{productId}/{amount}/{unit}" : {
+      "get" : {
+        "tags" : [ "Order" ],
+        "summary" : "Get Shipping Options for Product",
+        "description" : "Given a customerId, the product and quantity, along with the shipping address, get the possible shipping options.",
+        "operationId" : "getShippingOptions",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "amount",
+          "in" : "path",
+          "description" : "The quantity of product.",
+          "required" : true,
+          "type" : "number",
+          "format" : "int32"
+        }, {
+          "name" : "unit",
+          "in" : "path",
+          "description" : "The unit of measure identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "shipTo",
+          "in" : "query",
+          "description" : "First line of a shipping address, usually a name. (URL encoded)",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50
+        }, {
+          "name" : "careOf",
+          "in" : "query",
+          "description" : "Second line of a shipping address, may be a name or Apt. no etc. (URL encoded)",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50
+        }, {
+          "name" : "address3",
+          "in" : "query",
+          "description" : "Third line of a shipping address. (URL encoded)",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50
+        }, {
+          "name" : "address4",
+          "in" : "query",
+          "description" : "Fourth line of a shipping address. (URL encoded)",
+          "required" : true,
+          "type" : "string",
+          "maxLength" : 50
+        }, {
+          "name" : "city",
+          "in" : "query",
+          "description" : "The city. (URL encoded)",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "state",
+          "in" : "query",
+          "description" : "The two letter abbreviation for the state.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "postalCode",
+          "in" : "query",
+          "description" : "The postal (zip) code. (URL encoded)",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "foreign",
+          "in" : "query",
+          "description" : "This is true is the address is foreign. False otherwise.",
+          "required" : true,
+          "type" : "boolean"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/ShippingOptions"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid parameter(s). No shipping options found for product.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/order/history/{customerId}" : {
+      "get" : {
+        "tags" : [ "Order" ],
+        "summary" : "Get Historical Orders",
+        "description" : "Given a customerId, get their (historical) orders. This service returns a collection of links to orders and summaries.",
+        "operationId" : "getOrders",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/OrderSummaries"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "No historical orders found.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/{customerId}/{productId}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get Product",
+        "description" : "Given a productId, get the full details of the product identified by the productId.",
+        "operationId" : "getProduct",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/Product"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid productId.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/accessories/{customerId}/{productId}/{from}/{to}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get accessories for the indicated product, offered to the customer.",
+        "description" : "Given a customerId and productId, get the corresponding accessories on offer. This service implements paging.\n0 &lt;= Number of Accessories &lt; to - from.\nGiven 10 possible accessories and (from, to) = (0, 5), there are 5 items in the result set.\n",
+        "operationId" : "getAccessories",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "from",
+          "in" : "path",
+          "description" : "The index of the first accessory desired in the result set if there is an accessory available.",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "to",
+          "in" : "path",
+          "description" : "The desired index to the start of the next page (if there is one).",
+          "required" : true,
+          "type" : "integer",
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/Accessories"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, No accessories found.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/accentsymbol/categories/{customerId}/{productId}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get the categories used to group accent symbols (pridemarks) for the indicated product, offered to the customer.",
+        "description" : "Given a customerId and productId, get the available accent symbol categories.\n",
+        "operationId" : "getAccentSymbolCategories",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/AccessoryCategory"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/accentsymbols/{customerId}/{productId}/{category}/{filter}/{from}/{to}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get accent symbols for the indicated product, offered to the customer.",
+        "description" : "Given a customerId and productId, get the corresponding accent symbols on offer. This service implements paging.\n0 &lt;= Number of accent symbols &lt; to - from.\nGiven 10 possible accent symbols and (from, to) = (0, 5), there are 5 items in the result set.\nThe caller may filter by category or for selected accent symbols using 'filter'.\nThe 'filter' parameter allows the caller to request the default, recommended, or all accent symbols.\n",
+        "operationId" : "getAccentSymbols",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "category",
+          "in" : "path",
+          "description" : "The code of the category used to filter the accent symbols. Use 'all' if there is no filtering using categories.",
+          "required" : true,
+          "type" : "string",
+          "default" : "all"
+        }, {
+          "name" : "filter",
+          "in" : "path",
+          "description" : "A filter to apply to the results. Valid are [ all | recommended | default | accentId ]",
+          "required" : true,
+          "type" : "string",
+          "default" : "all"
+        }, {
+          "name" : "from",
+          "in" : "path",
+          "description" : "The index of the first accent symbol desired in the result set.",
+          "required" : true,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "to",
+          "in" : "path",
+          "description" : "The desired index to the start of the next page (if there is one).",
+          "required" : true,
+          "type" : "integer",
+          "default" : 10,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/AccessoryCategory"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, No accent symbols found.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/backgrounds/{customerId}/{productId}/{category}/{filter}/{from}/{to}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get accent symbols for the indicated product, offered to the customer.",
+        "description" : "Given a customerId and productId, get the corresponding accent symbols on offer. This service implements paging.\n0 &lt;= Number of accent symbols &lt; to - from.\nGiven 10 possible accent symbols and (from, to) = (0, 5), there are 5 items in the result set.\nThe caller may filter by category or for selected accent symbols using 'filter'.\nThe 'filter' parameter allows the caller to request the default, recommended, or all accent symbols.\n",
+        "operationId" : "getBackgrounds",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "category",
+          "in" : "path",
+          "description" : "The code of the category used to filter the accent symbols. Use 'all' if there is no filtering using categories.",
+          "required" : true,
+          "type" : "string",
+          "default" : "all"
+        }, {
+          "name" : "filter",
+          "in" : "path",
+          "description" : "A filter to apply to the results. Valid are [ all | recommended | default | accentId ]",
+          "required" : true,
+          "type" : "string",
+          "default" : "all"
+        }, {
+          "name" : "from",
+          "in" : "path",
+          "description" : "The index of the first accent symbol desired in the result set.",
+          "required" : true,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "to",
+          "in" : "path",
+          "description" : "The desired index to the start of the next page (if there is one).",
+          "required" : true,
+          "type" : "integer",
+          "default" : 10,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/AccessoryCategory"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, No accent symbols found.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/oneliner/categories/{customerId}/{productId}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get the categories used to group OneLiners (expressions) for the indicated product, offered to the customer.",
+        "description" : "Given a customerId and productId, get the corresponding OneLiners on categories.\n",
+        "operationId" : "getOneLinerCategories",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/AccessoryCategory"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/oneliners/{customerId}/{productId}/{category}/{filter}/{from}/{to}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get OneLiners (expressions) for the indicated product, offered to the customer.",
+        "description" : "Given a customerId and productId, get the corresponding one-liners on offer. This service implements paging.\n0 &lt;= Number of one-liners &lt; to - from.\nGiven 10 possible one-liners and (from, to) = (0, 5), there are 5 items in the result set.\nThe caller may filter by category or for selected oneLiners using 'filter'.\nThe 'filter' parameter allows the caller to request the default, recommended, or all one-liners.\n",
+        "operationId" : "getOneLiners",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the check product.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "category",
+          "in" : "path",
+          "description" : "The code of the category used to filter the OneLiners. Use 'all' if there is no filtering using categories.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "filter",
+          "in" : "path",
+          "description" : "A filter to apply to the results. Valid are [ all | recommended | default ]",
+          "required" : true,
+          "type" : "string",
+          "default" : "all"
+        }, {
+          "name" : "from",
+          "in" : "path",
+          "description" : "The index of the first expression desired in the result set.",
+          "required" : true,
+          "type" : "integer",
+          "default" : 0,
+          "format" : "int32"
+        }, {
+          "name" : "to",
+          "in" : "path",
+          "description" : "The desired index to the start of the next page (if there is one).",
+          "required" : true,
+          "type" : "integer",
+          "default" : 10,
+          "format" : "int32"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/AccessoryCategory"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, No one-liners found.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/prices/{customerId}/{productId}" : {
+      "get" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get price(s) of a product.",
+        "description" : "Given a customerId and productId, get the price for the quantity of product.\nIf there is no quantity and unit specified, this returns the prices e.g. tiers for the product.\n",
+        "operationId" : "getPrices",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "productId",
+          "in" : "path",
+          "description" : "The product identifier for the product.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "quantity",
+          "in" : "query",
+          "description" : "The quantity to be priced.",
+          "required" : false,
+          "type" : "integer",
+          "format" : "int32"
+        }, {
+          "name" : "unit",
+          "in" : "query",
+          "description" : "The unit of the quantity to be priced e.g. boxes.",
+          "required" : false,
+          "type" : "string"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/Prices"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, no prices found for product",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/catalog/{customerId}" : {
+      "post" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get a list of categories for the specifid catalogId.",
+        "description" : "Given a catalogId, this service will return a list of categories.\n",
+        "operationId" : "getCatlaog",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "The catalogId.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/catalogRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/catalogResponse"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, no prices found for product",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/product/category/{customerId}" : {
+      "post" : {
+        "tags" : [ "Product" ],
+        "summary" : "Get a list of categories for the specifid catalogId.",
+        "description" : "Given a catalogId, this service will return a list of categories.\n",
+        "operationId" : "getCategory",
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "The catalogId.",
+          "required" : false,
+          "schema" : {
+            "$ref" : "#/definitions/categoryRequest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful response",
+            "schema" : {
+              "$ref" : "#/definitions/categoryResponse"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "404" : {
+            "description" : "Invalid customerId or Invalid productId, no prices found for product",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    },
+    "/check/preview/{customerId}" : {
+      "post" : {
+        "tags" : [ "Check" ],
+        "summary" : "Get the preview of a check product.",
+        "description" : "Generate the preview of a check (in binary format) given a description of the check.\n** Note that the check description, and name, url of the accent symbol, font, and one-liner\nas well as prices are optional for this service. **\n",
+        "operationId" : "previewCheck",
+        "produces" : [ "image/png", "image/jpeg", "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "The clientId and token e.g. CREDENTIAL: token APIKEY: clientId",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "name" : "customerId",
+          "in" : "path",
+          "description" : "The customer identifier.",
+          "required" : true,
+          "type" : "string"
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "A description of the check product to preview.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/CheckPreviewOptions"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "The preview generation was successful. Returns a base64 encoded image.",
+            "schema" : {
+              "$ref" : "#/definitions/CheckPreview"
+            }
+          },
+          "400" : {
+            "description" : "The system has refused to generate a preview because of incorrectly formatted input.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "401" : {
+            "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "403" : {
+            "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "500" : {
+            "description" : "A technical issue prevents fulfilling the request (application error).",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "503" : {
+            "description" : "The application is not available.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "504" : {
+            "description" : "There is a break in the service chain that prevents fulfilling the request.",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          },
+          "default" : {
+            "description" : "Unexpected Error",
+            "schema" : {
+              "$ref" : "#/definitions/Errors"
+            }
+          }
+        },
+        "security" : [ {
+          "oauth" : [ "checks" ]
+        }, {
+          "key" : [ ]
+        } ]
+      }
+    }
+  },
+  "securityDefinitions" : {
+    "oauth" : {
+      "description" : "OAuth 2 security definition for Checks API",
+      "type" : "oauth2",
+      "tokenUrl" : "https://api.ordermychecks.com/oauth/token?grant_type=password&client_id=CLIENT-ID&username=ACCOUNTNO&password=TRNO",
+      "flow" : "password",
+      "scopes" : {
+        "checks" : "Grants access to order review order history, browse catalog, and order checks."
+      }
+    },
+    "key" : {
+      "type" : "apiKey",
+      "name" : "APIKEY",
+      "in" : "header"
+    }
+  },
+  "definitions" : {
+    "Accessories" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/Accessory"
+      }
+    },
+    "AccessoryDetails" : {
+      "type" : "object",
+      "required" : [ "code", "name", "pricing", "url" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the accessory."
+        },
+        "code" : {
+          "type" : "string",
+          "description" : "The product code of the accessory."
+        },
+        "url" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "A URL to an image representing the accessory."
+        },
+        "pricing" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/PricingOption"
+          }
+        },
+        "type" : {
+          "type" : "string",
+          "description" : "The type of the accessory. Only applies to AccentSymbols."
+        }
+      },
+      "description" : "Details about an accessory that a customer may order either to enhance checks, or as a cross sell item. It includes available quantities."
+    },
+    "Accessory" : {
+      "type" : "object",
+      "required" : [ "code", "name", "price", "quantity", "url" ],
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the accessory."
+        },
+        "code" : {
+          "type" : "string",
+          "description" : "The product code of the accessory."
+        },
+        "url" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "A URL to an image representing the accessory."
+        },
+        "type" : {
+          "type" : "string",
+          "description" : "A code that describes the type of the product."
+        },
+        "price" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "quantity" : {
+          "$ref" : "#/definitions/Quantity"
+        },
+        "monogram" : {
+          "type" : "string",
+          "maxLength" : 3
+        },
+        "preselected" : {
+          "type" : "boolean",
+          "description" : "Is true if the accessory (fraudArmor) should be preselected."
+        },
+        "shippingOption" : {
+          "$ref" : "#/definitions/ShippingOption"
+        },
+        "removable" : {
+          "type" : "boolean",
+          "description" : "Boolean that determines whether this accessory may be removed."
+        },
+        "hcProductId" : {
+          "type" : "string",
+          "description" : "The productID that matches to CCP product."
+        },
+        "maxQuantity" : {
+          "type" : "string",
+          "description" : "Max Quantity."
+        },
+        "personalization" : {
+          "$ref" : "#/definitions/Personalization"
+        }
+      },
+      "description" : "An accessory that a customer orders either to enhance checks, or as a cross sell item.\nThe price of the accessory is for example 20.00 USD, for a quantity of 120 Checks.\n"
+    },
+    "Address" : {
+      "type" : "object",
+      "required" : [ "address3", "address4", "careOf", "shipTo" ],
+      "properties" : {
+        "shipTo" : {
+          "type" : "string",
+          "description" : "Name for the person accepting delivery."
+        },
+        "careOf" : {
+          "type" : "string",
+          "description" : "The name of the person whose address is it is."
+        },
+        "address3" : {
+          "type" : "string",
+          "description" : "A street address including the street number e.g. 22199 Pleasant Street"
+        },
+        "address4" : {
+          "type" : "string",
+          "description" : "The apartment or suite number if needed e.g. Appt. 11"
+        },
+        "address5" : {
+          "type" : "string",
+          "description" : "This line is used only when the address is known to be foreign."
+        },
+        "city" : {
+          "type" : "string",
+          "description" : "The city."
+        },
+        "state" : {
+          "type" : "string",
+          "description" : "The 2 digit state abbreviation or 'FPO', 'APO'.",
+          "minLength" : 2,
+          "maxLength" : 3
+        },
+        "postalCode" : {
+          "type" : "string",
+          "description" : "e.g. the 5 digit zip code plus 4 digit extension for US addresses."
+        },
+        "isForeign" : {
+          "type" : "boolean",
+          "description" : "Is true if the address is foreign."
+        }
+      },
+      "description" : "An address, usually the customer's delivery address."
+    },
+    "Authorization" : {
+      "type" : "object",
+      "required" : [ "access_token", "expires_in", "scope", "token_type" ],
+      "properties" : {
+        "access_token" : {
+          "type" : "string",
+          "description" : "The access token."
+        },
+        "token_type" : {
+          "type" : "string",
+          "description" : "The type of token. 'bearer'"
+        },
+        "expires_in" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The expiration of the token i.e. length of validity in secs."
+        },
+        "scope" : {
+          "type" : "string",
+          "description" : "The scope for which the token is valid e.g. 'checks'"
+        }
+      },
+      "description" : "The authorization token and expiration."
+    },
+    "Check" : {
+      "type" : "object",
+      "required" : [ "personalization", "price", "productId", "quantity" ],
+      "properties" : {
+        "productId" : {
+          "type" : "string",
+          "description" : "The identifier of the check product in the product catalog."
+        },
+        "softwarePackage" : {
+          "type" : "string",
+          "description" : "softwarePackage."
+        },
+        "color" : {
+          "type" : "string",
+          "description" : "color."
+        },
+        "titlePlateLogo" : {
+          "type" : "string",
+          "description" : "titlePlateLogo."
+        },
+        "startAt" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The starting number i.e. check number of the 1st check.",
+          "minimum" : 100,
+          "maximum" : 9999
+        },
+        "overSignature" : {
+          "type" : "array",
+          "description" : "Text placed over the signature line on checks.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "personalization" : {
+          "$ref" : "#/definitions/Personalization"
+        },
+        "accent" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "font" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "oneLiner" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "background" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "apron" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "fraudArmor" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "quantity" : {
+          "$ref" : "#/definitions/Quantity"
+        },
+        "price" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "shippingOption" : {
+          "$ref" : "#/definitions/ShippingOption"
+        }
+      },
+      "description" : "A check product including the personalization etc."
+    },
+    "Confirmation" : {
+      "type" : "object",
+      "properties" : {
+        "summary" : {
+          "$ref" : "#/definitions/OrderSummary"
+        },
+        "errors" : {
+          "$ref" : "#/definitions/Errors"
+        }
+      },
+      "description" : "Order summary and error information."
+    },
+    "Confirmations" : {
+      "type" : "array",
+      "description" : "Order summary and error information returned when an order fails partially.",
+      "items" : {
+        "$ref" : "#/definitions/Confirmation"
+      }
+    },
+    "Customer" : {
+      "type" : "object",
+      "required" : [ "name" ],
+      "properties" : {
+        "customerId" : {
+          "$ref" : "#/definitions/CustomerId"
+        },
+        "name" : {
+          "$ref" : "#/definitions/Name"
+        },
+        "telephone" : {
+          "$ref" : "#/definitions/Telephone"
+        },
+        "emailAddress" : {
+          "type" : "string",
+          "format" : "email",
+          "description" : "The customer's email address."
+        }
+      },
+      "description" : "The customer"
+    },
+    "CustomerId" : {
+      "type" : "string",
+      "description" : "An identifier used to resolve the customer's transfer routing and account number. This is not persistent and may change."
+    },
+    "Errors" : {
+      "type" : "array",
+      "description" : "A list of error messages.",
+      "items" : {
+        "$ref" : "#/definitions/Error"
+      }
+    },
+    "Error" : {
+      "type" : "object",
+      "required" : [ "code", "message" ],
+      "properties" : {
+        "message" : {
+          "type" : "string",
+          "description" : "The text message describing the error."
+        },
+        "code" : {
+          "type" : "string",
+          "description" : "A code that can be used to lookup alternative text e.g. language, mobile friendly."
+        }
+      },
+      "description" : "An error message and code."
+    },
+    "historyPersonalization" : {
+      "type" : "object",
+      "properties" : {
+        "historyPersonalization1" : {
+          "type" : "string",
+          "description" : "History Personalization line 1."
+        },
+        "historyPersonalization2" : {
+          "type" : "string",
+          "description" : "History Personalization line 2."
+        },
+        "historyPersonalization3" : {
+          "type" : "string",
+          "description" : "History Personalization line 3."
+        },
+        "historyPersonalization4" : {
+          "type" : "string",
+          "description" : "History Personalization line 4."
+        },
+        "historyPersonalization5" : {
+          "type" : "string",
+          "description" : "History Personalization line 5."
+        },
+        "historyPersonalization6" : {
+          "type" : "string",
+          "description" : "History Personalization line 6."
+        }
+      }
+    },
+    "historyPersonalizationBold" : {
+      "type" : "object",
+      "properties" : {
+        "historyPersonalizationBold1" : {
+          "type" : "boolean",
+          "description" : "This is true if History Personalization line 1 is bold."
+        },
+        "historyPersonalizationBold2" : {
+          "type" : "boolean",
+          "description" : "This is true if History Personalization line 2 is bold."
+        },
+        "historyPersonalizationBold3" : {
+          "type" : "boolean",
+          "description" : "This is true if History Personalization line 3 is bold."
+        }
+      }
+    },
+    "InstitutionAddress" : {
+      "type" : "object",
+      "properties" : {
+        "address1" : {
+          "type" : "string",
+          "description" : "Address line 1 of the address."
+        },
+        "address2" : {
+          "type" : "string",
+          "description" : "Address line 2 of the address."
+        },
+        "city" : {
+          "type" : "string",
+          "description" : "City of the address."
+        },
+        "state" : {
+          "type" : "string",
+          "description" : "State of the address."
+        },
+        "zip" : {
+          "type" : "string",
+          "description" : "Zip code of the address."
+        }
+      }
+    },
+    "InstitutionValidation" : {
+      "type" : "object",
+      "properties" : {
+        "emailMaxLength" : {
+          "type" : "number",
+          "description" : "The max length of email characters allowed by either the FI or the Channel."
+        },
+        "promoCodeMaxLength" : {
+          "type" : "number",
+          "description" : "The max length of promoCode characters allowed by either the FI or the Channel."
+        },
+        "shippingLinesMaxLength" : {
+          "type" : "number",
+          "description" : "The max length of characters allowed for each shipping line by either the FI or the Channel."
+        },
+        "startingCheckMinValue" : {
+          "type" : "number",
+          "description" : "The minimum value a starting check number can be allowed to be."
+        },
+        "startingCheckMaxValue" : {
+          "type" : "number",
+          "description" : "The max value a starting check number can be allowed to be."
+        }
+      }
+    },
+    "InstitutionLink" : {
+      "type" : "object",
+      "properties" : {
+        "link" : {
+          "type" : "string",
+          "description" : "The hardcoded link name. e.g. 'logout', 'onlinebanking' and 'survey'"
+        },
+        "label" : {
+          "type" : "string",
+          "description" : "The label to display on the UI. If none is given then the UI will use the default."
+        },
+        "url" : {
+          "type" : "string",
+          "description" : "The URL to use with this link. If none is given then the UI will use the default."
+        }
+      }
+    },
+    "InstitutionNavigation" : {
+      "type" : "array",
+      "description" : "A set of InstitutionLinks, one for 'logout', 'onlinebanking' and 'survey'",
+      "items" : {
+        "$ref" : "#/definitions/InstitutionLink"
+      }
+    },
+    "Institution" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the institution e.g. Navy Federal Credit Union."
+        },
+        "analyticsName" : {
+          "type" : "string",
+          "description" : "The name given to the FI for analytics perposes."
+        },
+        "transitRouting" : {
+          "type" : "string",
+          "description" : "The transit routing number of the institution e.g. '256074974'",
+          "minLength" : 9,
+          "maxLength" : 9
+        },
+        "account" : {
+          "type" : "string",
+          "description" : "The account of the customer requesting the institution information."
+        },
+        "clubCode" : {
+          "type" : "string",
+          "description" : "The code identifying the club which in turn determines the catalog."
+        },
+        "clubName" : {
+          "type" : "string",
+          "description" : "The name of the club."
+        },
+        "branchCode" : {
+          "type" : "string",
+          "description" : "The branch code associated with this TR."
+        },
+        "logo" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "A URL to the institutions logo used for branding."
+        },
+        "clientHomePage" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "A URL to the institutions home page."
+        },
+        "customerServiceNumber" : {
+          "type" : "string",
+          "description" : "A customer service telephone number. This may be a Harland Clarke number or a financial institution number depending contractual arrangements."
+        },
+        "isAllowedEditCheckNumber" : {
+          "type" : "boolean",
+          "description" : "This is true if the customer is allowed to determine their own starting check number."
+        },
+        "isAllowedEnterPromoCode" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution offers PromoCodes that the user can enter."
+        },
+        "isAllowedEditPersonalizationNames" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the user to edit the personalization name lines."
+        },
+        "isAllowedEditPersonalizationAddress" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the user to edit the personalization address lines."
+        },
+        "isAllowedEditShipping" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the user to edit the shipping address."
+        },
+        "isAllowedEditEmail" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the user to edit the email address."
+        },
+        "isAllowedEnterForeignShipping" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the use of a foreign shipping address."
+        },
+        "isAllowedProductChange" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the product to be changed."
+        },
+        "isAllowedOrderChecks" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the order of checks."
+        },
+        "isAllowedOrderStatus" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes the order status to be displaced."
+        },
+        "isPricingAvailable" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution allowes pricing available."
+        },
+        "isPreselectShippingOption" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution offers a default ShippingOption but does not want it to be applied but selected."
+        },
+        "isDefaultShippingOption" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution offers a default ShippingOption."
+        },
+        "isRequiredEmail" : {
+          "type" : "boolean",
+          "description" : "This is true if the institution requires an email to be entered."
+        },
+        "isBusinessAccount" : {
+          "type" : "boolean",
+          "description" : "This is true if the account is a business account."
+        },
+        "accessoriesAllowed" : {
+          "type" : "number",
+          "description" : "This is the number of accessories to display."
+        },
+        "forcePersonalizationVerification" : {
+          "type" : "boolean",
+          "description" : "This is true if the user interface must force the user to verify the personalization before continuing."
+        },
+        "integrationKeepAliveURL" : {
+          "type" : "string",
+          "description" : "This is the URL given to use to keep the client side application session alive, only used for integration purposes."
+        },
+        "integrationKillClientSessionURL" : {
+          "type" : "string",
+          "description" : "This is the URL given to use to kill the client side application session, only used for integration purposes."
+        },
+        "showSurvey" : {
+          "type" : "boolean",
+          "description" : "This is true if the user interface should offer the user the opportunity to fill out a survey."
+        },
+        "showPersonalization" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI allowes the user to see the personalization."
+        },
+        "showPersonalizationCompare" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI allowes the user to see the personalization that was sent over and compare it to the last order personalization."
+        },
+        "showShippingAddress" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI allowes the user to see the shipping address."
+        },
+        "showEmail" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI allowes to show the email."
+        },
+        "showEmailReminder" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI allowes to show the email reminder."
+        },
+        "showIframe" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI renders our page in an iFrame."
+        },
+        "showIFrameInsecure" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI renders our page in an iFrame and no security is allowed."
+        },
+        "foaFlag" : {
+          "type" : "boolean",
+          "description" : "This is true if the account is enabled for FOA."
+        },
+        "foaDefaultAcctType" : {
+          "type" : "string",
+          "description" : "This is the account type defaulted by FOA."
+        },
+        "foaDefaultAbabrID" : {
+          "type" : "string",
+          "description" : "This is the branch for this account defaulted by FOA."
+        },
+        "showPhoneNumberField" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI allows the participation of SMS alerts, this will show the phone number entry field."
+        },
+        "styleColor1" : {
+          "type" : "string",
+          "description" : "This is a specific color to be used as to personalize the UI for the FI."
+        },
+        "channel" : {
+          "type" : "string",
+          "description" : "This will return the appropriate channel associated with the trasitRouting number sent. e.g. 'CCP' || 'CHOICE'"
+        },
+        "poweredBy" : {
+          "type" : "string",
+          "description" : "Returns 'DEFAULT' if 'powered by Harland Clarke' is to be shown, '' if nothing is to be shown."
+        },
+        "backgroundImage" : {
+          "type" : "string",
+          "description" : "This is URL of the background image to be used for the UI."
+        },
+        "backgroundTextImage" : {
+          "type" : "string",
+          "description" : "This is text that would be displayed in the background."
+        },
+        "catalogId" : {
+          "type" : "string",
+          "description" : "This is the catalogId that the user can see."
+        },
+        "customCatalogId" : {
+          "type" : "string",
+          "description" : "This is the customCatalogId that is presented if the FI has a custom catalog."
+        },
+        "historyPersonalization" : {
+          "$ref" : "#/definitions/historyPersonalization"
+        },
+        "historyPersonalizationBold" : {
+          "$ref" : "#/definitions/historyPersonalizationBold"
+        },
+        "address" : {
+          "$ref" : "#/definitions/InstitutionAddress"
+        },
+        "orderAdditions" : {
+          "$ref" : "#/definitions/OrderAdditions"
+        },
+        "validation" : {
+          "$ref" : "#/definitions/InstitutionValidation"
+        },
+        "navigation" : {
+          "$ref" : "#/definitions/InstitutionNavigation"
+        },
+        "contactUsContent" : {
+          "$ref" : "#/definitions/ContactUsContent"
+        },
+        "loginStatus" : {
+          "type" : "string",
+          "description" : "loginStatus added by Liberty."
+        },
+        "iFrameHostURLs" : {
+          "type" : "array",
+          "description" : "An array of allowed URLs strings.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "showChatbotLink" : {
+          "type" : "boolean",
+          "description" : "This is true if the FI client is allowed to show the chat bod link."
+        },
+        "chatbotLink" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "A URL to the Chatbot."
+        },
+        "webchatLink" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "A URL to the Chatbot."
+        },
+        "historyStartingCheckNumber" : {
+          "type" : "number",
+          "description" : "The historical starting check number."
+        }
+      }
+    },
+    "OrderAdditions" : {
+      "type" : "array",
+      "description" : "Order additions.",
+      "items" : {
+        "$ref" : "#/definitions/OrderAddition"
+      }
+    },
+    "OrderAddition" : {
+      "type" : "object",
+      "properties" : {
+        "input" : {
+          "type" : "string",
+          "description" : "JSON location of input."
+        },
+        "output" : {
+          "type" : "string",
+          "description" : "JSON location of output."
+        }
+      },
+      "description" : "Additional information for the order object."
+    },
+    "ContactUsContent" : {
+      "type" : "object",
+      "properties" : {
+        "description" : {
+          "type" : "string",
+          "description" : "The text of the modal."
+        },
+        "title" : {
+          "type" : "string",
+          "description" : "The title of the modal."
+        },
+        "modal" : {
+          "type" : "string",
+          "description" : "The modal to be shown."
+        }
+      },
+      "description" : "Content for contact us link."
+    },
+    "IntegratedMessage" : {
+      "type" : "object",
+      "required" : [ "payload" ],
+      "properties" : {
+        "payload" : {
+          "type" : "string",
+          "description" : "The integrated message that the client sent to HarlandClarke"
+        },
+        "isBusiness" : {
+          "type" : "boolean",
+          "description" : "Is true if the account is requesting business."
+        },
+        "zip" : {
+          "type" : "string",
+          "description" : "The zipcode the client enters."
+        },
+        "ip" : {
+          "type" : "string",
+          "description" : "The IP Address of the client."
+        },
+        "isFOA" : {
+          "type" : "boolean",
+          "description" : "Flag that determines whether the client falls under First Order Acceptance."
+        },
+        "foaAbaBrId" : {
+          "type" : "string",
+          "description" : "FOA Only! The ID for FOA."
+        },
+        "foaAcctType" : {
+          "type" : "string",
+          "description" : "FOA Only! The account type for FOA."
+        },
+        "foaResult" : {
+          "type" : "string",
+          "description" : "FOA Only! This is the result object from FOA service."
+        }
+      },
+      "description" : "Defaults that a Financial Institution supplies to override historical information that Harland Clarke\nwould otherwise use to prepare a default order.\n"
+    },
+    "catalogRequest" : {
+      "type" : "object",
+      "required" : [ "catalogId" ],
+      "properties" : {
+        "catalogId" : {
+          "type" : "string",
+          "description" : "The catalogId."
+        }
+      },
+      "description" : "Sends in the CatalogID to be searched.\n"
+    },
+    "categoryRequest" : {
+      "type" : "object",
+      "required" : [ "categoryId" ],
+      "properties" : {
+        "categoryId" : {
+          "type" : "string",
+          "description" : "The categoryId."
+        }
+      },
+      "description" : "Sends in the categoryID to be searched.\n"
+    },
+    "catalogResponseInfo" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "description" : "The id of the category or catalog."
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the category of catalog."
+        },
+        "image" : {
+          "type" : "string",
+          "description" : "The URL path to the image of this category/catalog."
+        },
+        "noOfProducts" : {
+          "type" : "number",
+          "description" : "The number of products this category has, 0 if it does not contain any products."
+        },
+        "categoryAttributes" : {
+          "type" : "string",
+          "description" : "Any special description that can be filtered by."
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "The array of sub categories or catalogs this Id may have.",
+          "items" : {
+            "$ref" : "#/definitions/catalogResponseInfo"
+          }
+        }
+      }
+    },
+    "catalogResponse" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "description" : "The id of the category or catalog."
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the category of catalog."
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "the array of sub categories or catalogs this Id may have.",
+          "items" : {
+            "$ref" : "#/definitions/catalogResponseInfo"
+          }
+        }
+      }
+    },
+    "categoryResponseItems" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "description" : "The id of the product."
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the product."
+        },
+        "image" : {
+          "type" : "string",
+          "description" : "The URL path to the image of this product."
+        },
+        "productType" : {
+          "type" : "number",
+          "description" : "A numeric value indicating the type of product it is. 1 is check."
+        }
+      }
+    },
+    "categoryResponse" : {
+      "type" : "array",
+      "description" : "The array of products that are under this category.",
+      "items" : {
+        "$ref" : "#/definitions/categoryResponseItems"
+      }
+    },
+    "Money" : {
+      "type" : "object",
+      "required" : [ "amount", "currency" ],
+      "properties" : {
+        "amount" : {
+          "type" : "number",
+          "format" : "double",
+          "description" : "The amount of money e.g. 5.55"
+        },
+        "currency" : {
+          "type" : "string",
+          "description" : "This is an ISO 4217 currency code denoting the currency of the money e.g. USD"
+        }
+      }
+    },
+    "Name" : {
+      "type" : "string",
+      "description" : "The name of a person e.g. Captain Jim L. Ford III, USMCR (fmr)"
+    },
+    "Order" : {
+      "type" : "object",
+      "required" : [ "customer", "items", "shippingAddress", "subTotal", "total" ],
+      "properties" : {
+        "customer" : {
+          "$ref" : "#/definitions/Customer"
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "The line items of the order. Some platforms may convert these into single orders.",
+          "items" : {
+            "$ref" : "#/definitions/OrderItem"
+          }
+        },
+        "placedOn" : {
+          "type" : "string",
+          "format" : "date",
+          "description" : "The date the order was placed in US date format MM/DD/YYYY. e.g. 01/03/2015"
+        },
+        "placedRecent" : {
+          "type" : "boolean",
+          "description" : "This is true if the placedOn date is with 24 hours of the current server time."
+        },
+        "sendEmailReminder" : {
+          "type" : "boolean",
+          "description" : "If this flag is returned true then the customer will receive email reminders."
+        },
+        "subscribe" : {
+          "type" : "boolean",
+          "description" : "If this flag is returned true then the customer will be subscribed."
+        },
+        "language" : {
+          "type" : "string",
+          "description" : "This field returns the language. (\\u0000)"
+        },
+        "promotion" : {
+          "$ref" : "#/definitions/Promotion"
+        },
+        "shippingAddress" : {
+          "$ref" : "#/definitions/Address"
+        },
+        "subTotal" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "totalSavings" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "tax" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "total" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "totalShipping" : {
+          "$ref" : "#/definitions/Money"
+        }
+      },
+      "description" : "An order containing line items, each of which can be shipped separately."
+    },
+    "OrderId" : {
+      "type" : "string",
+      "description" : "An identifier used to identify an order."
+    },
+    "OrderItem" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "$ref" : "#/definitions/OrderId"
+        },
+        "fiTotal" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "itemSubtotal" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "itemTax" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "check" : {
+          "$ref" : "#/definitions/Check"
+        },
+        "accessory" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "upsell" : {
+          "$ref" : "#/definitions/Accessory"
+        }
+      },
+      "description" : "A single line item in an order. Some platforms may treat it as an order in its own right. An OrderItem is one of check, accessory\ne.g. register, or upsell e.g. FraudArmor. Only one of the three structures should contain data. The others should be null.\n"
+    },
+    "OrderSummaries" : {
+      "type" : "array",
+      "description" : "Summarized information about an order. Note that some platforms do not support composite orders.",
+      "items" : {
+        "$ref" : "#/definitions/OrderSummary"
+      }
+    },
+    "OrderSummary" : {
+      "type" : "object",
+      "required" : [ "orderId" ],
+      "properties" : {
+        "orderId" : {
+          "$ref" : "#/definitions/OrderId"
+        },
+        "products" : {
+          "$ref" : "#/definitions/ProductSummary"
+        }
+      },
+      "description" : "Summary of a single order or line item converted into an order."
+    },
+    "Prices" : {
+      "type" : "object",
+      "required" : [ "accents", "oneLiners", "product", "signatureLines" ],
+      "properties" : {
+        "product" : {
+          "$ref" : "#/definitions/PricingOptions"
+        },
+        "accents" : {
+          "$ref" : "#/definitions/PricingOption"
+        },
+        "oneLiners" : {
+          "$ref" : "#/definitions/PricingOption"
+        },
+        "signatureLines" : {
+          "$ref" : "#/definitions/PricingOption"
+        }
+      },
+      "description" : "The pricing options available for a product."
+    },
+    "PricingOption" : {
+      "required" : [ "price", "quantity" ],
+      "properties" : {
+        "price" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "quantity" : {
+          "$ref" : "#/definitions/Quantity"
+        }
+      },
+      "description" : "An option and price e.g. 120 Checks @ USD 22.50"
+    },
+    "PricingOptions" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "#/definitions/PricingOption"
+      }
+    },
+    "PriceConfirmation" : {
+      "type" : "object",
+      "properties" : {
+        "order" : {
+          "$ref" : "#/definitions/Order"
+        },
+        "errors" : {
+          "$ref" : "#/definitions/Errors"
+        }
+      },
+      "description" : "An Order with updated prices and error information if some prices were not supplied."
+    },
+    "Product" : {
+      "type" : "object",
+      "required" : [ "description", "id", "name", "type" ],
+      "properties" : {
+        "id" : {
+          "$ref" : "#/definitions/ProductId"
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the product."
+        },
+        "shortDescription" : {
+          "type" : "string",
+          "description" : "A short description of the product."
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "The description of the product."
+        },
+        "binding" : {
+          "type" : "string",
+          "description" : "The style of binding used on the checks e.g. duplicate."
+        },
+        "color" : {
+          "type" : "string",
+          "description" : "The color style of the checks."
+        },
+        "colorId" : {
+          "type" : "string",
+          "description" : "The color ID."
+        },
+        "hcProductId" : {
+          "type" : "string",
+          "description" : "hc Product Id."
+        },
+        "hcStyleId" : {
+          "type" : "string",
+          "description" : "hc Style Id."
+        },
+        "part" : {
+          "type" : "string",
+          "description" : "The 'part' style of the checks."
+        },
+        "type" : {
+          "type" : "string",
+          "description" : "The type of product e.g. Check"
+        },
+        "personalizationLines" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The number of personalization lines available.",
+          "minimum" : 1
+        },
+        "isBusinessProduct" : {
+          "type" : "boolean",
+          "description" : "Indicates whether the check product is a business product or a personal product."
+        },
+        "licenseUri" : {
+          "type" : "string",
+          "description" : "The URI to the license image."
+        },
+        "licenseText" : {
+          "type" : "string",
+          "description" : "The text for the additional license info."
+        },
+        "breadcrumb" : {
+          "type" : "string",
+          "description" : "breadcrumb."
+        },
+        "recommendedAccentSymbols" : {
+          "$ref" : "#/definitions/AccentSymbols"
+        },
+        "recommendedOneLiners" : {
+          "$ref" : "#/definitions/OneLiners"
+        },
+        "distinctiveLettering" : {
+          "$ref" : "#/definitions/DistinctiveLettering"
+        },
+        "pricingOptions" : {
+          "$ref" : "#/definitions/PricingOptions"
+        },
+        "scenes" : {
+          "type" : "array",
+          "description" : "Available scenes.",
+          "items" : {
+            "$ref" : "#/definitions/Scenes"
+          }
+        },
+        "relatedProducts" : {
+          "type" : "array",
+          "description" : "URI's to details of related products e.g. http://api.ordermychecks.com/product/1234",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "relatedStyles" : {
+          "type" : "array",
+          "description" : "Check product styles related to this product.",
+          "items" : {
+            "$ref" : "#/definitions/CheckStyle"
+          }
+        },
+        "fraudArmor" : {
+          "$ref" : "#/definitions/Accessory"
+        },
+        "validation" : {
+          "$ref" : "#/definitions/ProductValidation"
+        },
+        "allowed" : {
+          "type" : "array",
+          "description" : "a list that shows what is allowed on the product.",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "autoLoadAccent" : {
+          "description" : "The object to insert if there is a default or manditory item for this product.",
+          "$ref" : "#/definitions/Accessory"
+        },
+        "autoLoadOneLiner" : {
+          "description" : "The object to insert if there is a default or manditory item for this product.",
+          "$ref" : "#/definitions/Accessory"
+        },
+        "autoLoadFont" : {
+          "description" : "The object to insert if there is a default or manditory item for this product.",
+          "$ref" : "#/definitions/Accessory"
+        },
+        "autoLoadBackground" : {
+          "description" : "The object to insert if there is a default or manditory item for this product.",
+          "$ref" : "#/definitions/Accessory"
+        }
+      },
+      "description" : "Details of a product in the product catalog."
+    },
+    "ProductValidation" : {
+      "properties" : {
+        "personalizationLinesMaxLength" : {
+          "type" : "integer",
+          "description" : "The max length for the personalization lines in a given product."
+        }
+      },
+      "description" : "Variables for front-end validation."
+    },
+    "Promotion" : {
+      "properties" : {
+        "code" : {
+          "type" : "string",
+          "description" : "The promotion code."
+        },
+        "text" : {
+          "type" : "string",
+          "description" : "The description corressponding to a promotion code"
+        }
+      },
+      "description" : "A promotion that results in a discounted price."
+    },
+    "AccentSymbol" : {
+      "properties" : {
+        "symbol" : {
+          "$ref" : "#/definitions/AccessoryDetails"
+        }
+      },
+      "description" : "An accent symbol (pridemark) belonging to a group identified by accentGroup."
+    },
+    "AccessoryCategory" : {
+      "properties" : {
+        "name" : {
+          "type" : "string",
+          "description" : "This is the name of the category."
+        },
+        "code" : {
+          "type" : "string",
+          "description" : "This is the code of the category."
+        },
+        "groups" : {
+          "type" : "array",
+          "description" : "A set of AccessoryCategory, if this category has sub-categories.",
+          "items" : {
+            "$ref" : "#/definitions/AccessoryCategory"
+          }
+        },
+        "items" : {
+          "type" : "array",
+          "description" : "A set of AccessoryDetails, if this category has accessories (accents or oneliners)",
+          "items" : {
+            "$ref" : "#/definitions/AccessoryDetails"
+          }
+        }
+      }
+    },
+    "AccentSymbols" : {
+      "type" : "array",
+      "description" : "A set of default, recommended, or all accent symbols (pridemarks) for a product.",
+      "items" : {
+        "$ref" : "#/definitions/AccentSymbol"
+      }
+    },
+    "OneLiner" : {
+      "type" : "object",
+      "properties" : {
+        "line" : {
+          "$ref" : "#/definitions/AccessoryDetails"
+        }
+      },
+      "description" : "A one-liner (expression)."
+    },
+    "OneLiners" : {
+      "type" : "array",
+      "description" : "A set of default, recommended, or all one-liners (expressions) for a product.",
+      "items" : {
+        "$ref" : "#/definitions/OneLiner"
+      }
+    },
+    "Font" : {
+      "properties" : {
+        "font" : {
+          "$ref" : "#/definitions/AccessoryDetails"
+        }
+      },
+      "description" : "A font (distinctive lettering)"
+    },
+    "DistinctiveLettering" : {
+      "type" : "array",
+      "description" : "The distinctive lettering (fonts) associated with a product.",
+      "items" : {
+        "$ref" : "#/definitions/Font"
+      }
+    },
+    "Scenes" : {
+      "properties" : {
+        "product" : {
+          "$ref" : "#/definitions/ProductId"
+        },
+        "base" : {
+          "type" : "string",
+          "description" : "URI to the base image of a product."
+        },
+        "small" : {
+          "type" : "string",
+          "description" : "URI to the small image of a product."
+        },
+        "thumbnail" : {
+          "type" : "string",
+          "description" : "URI to the thumbnail image of a product."
+        },
+        "large" : {
+          "type" : "string",
+          "description" : "URI to the large image of a product."
+        }
+      },
+      "description" : "URI's to the small image, thumbnail, and large images of the product identified by productId"
+    },
+    "ProductSummary" : {
+      "type" : "object",
+      "required" : [ "amount", "description", "id", "price" ],
+      "properties" : {
+        "id" : {
+          "$ref" : "#/definitions/ProductId"
+        },
+        "image" : {
+          "type" : "string",
+          "description" : "The image of the product."
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "The description of the product."
+        },
+        "orderStatus" : {
+          "type" : "string",
+          "description" : "The order status of this historical order."
+        },
+        "trackingNumber" : {
+          "type" : "string",
+          "description" : "The tracking number of this historical order."
+        },
+        "trackingURL" : {
+          "type" : "string",
+          "description" : "The tracking url to the shipping company of this historical order."
+        },
+        "deliveryDate" : {
+          "type" : "string",
+          "description" : "The delivery date of the order."
+        },
+        "amount" : {
+          "$ref" : "#/definitions/Quantity"
+        },
+        "price" : {
+          "$ref" : "#/definitions/Money"
+        }
+      },
+      "description" : "Summary of a product that was ordered."
+    },
+    "Personalization" : {
+      "type" : "object",
+      "required" : [ "address1", "address2", "name1" ],
+      "properties" : {
+        "name1" : {
+          "type" : "object",
+          "description" : "Usually the he name of the first person, or a business, listed on the check. It is HTML content. For example, <strong>Cmdr. James Bond</strong>.",
+          "allOf" : [ {
+            "$ref" : "#/definitions/PersonalizationLine"
+          } ]
+        },
+        "name2" : {
+          "type" : "object",
+          "description" : "The name of the secondary person listed on the check. This is HTML content.",
+          "allOf" : [ {
+            "$ref" : "#/definitions/PersonalizationLine"
+          } ]
+        },
+        "address1" : {
+          "type" : "object",
+          "description" : "May contain address information. This is HTML content.",
+          "allOf" : [ {
+            "$ref" : "#/definitions/PersonalizationLine"
+          } ]
+        },
+        "address2" : {
+          "type" : "object",
+          "description" : "Unstructured. May contain address information.",
+          "allOf" : [ {
+            "$ref" : "#/definitions/PersonalizationLine"
+          } ]
+        },
+        "address3" : {
+          "type" : "object",
+          "description" : "Unstructured. May contain address information.",
+          "allOf" : [ {
+            "$ref" : "#/definitions/PersonalizationLine"
+          } ]
+        },
+        "address4" : {
+          "type" : "object",
+          "description" : "Unstructured. May contain address information.",
+          "allOf" : [ {
+            "$ref" : "#/definitions/PersonalizationLine"
+          } ]
+        }
+      },
+      "description" : "The personalization details that appear on a check. This is unstructured."
+    },
+    "PersonalizationLine" : {
+      "type" : "object",
+      "required" : [ "isBold", "text" ],
+      "properties" : {
+        "text" : {
+          "type" : "string",
+          "description" : "This is plain unformatted text."
+        },
+        "isBold" : {
+          "type" : "boolean",
+          "description" : "Set this to true if the text is in boldface."
+        }
+      },
+      "description" : "This is a line of formatted text that makes up the personalization."
+    },
+    "ProductId" : {
+      "type" : "string",
+      "description" : "'An identifier used to identify a product e.g. checks, accessory. It identifies the product including its binding, etc. Synonyms are stockkeeping unit (SKU), and product code.'\n"
+    },
+    "Quantity" : {
+      "type" : "object",
+      "required" : [ "amount", "unit" ],
+      "properties" : {
+        "amount" : {
+          "type" : "integer",
+          "format" : "int32",
+          "description" : "The unqualified amount e.g. 10",
+          "minimum" : 0
+        },
+        "unit" : {
+          "type" : "string",
+          "description" : "The qualifier e.g. 'checks'"
+        }
+      },
+      "description" : "A quantity that consists of an amount and a unit of measure."
+    },
+    "ShippingOption" : {
+      "type" : "object",
+      "required" : [ "code" ],
+      "properties" : {
+        "bundled" : {
+          "type" : "boolean",
+          "description" : "Is true if this item is bundled for shipping."
+        },
+        "code" : {
+          "type" : "string",
+          "description" : "The shipping code e.g. 'G'"
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "Name of the shipping option e.g. \"UPS Next Day Air\""
+        },
+        "description" : {
+          "type" : "string",
+          "description" : "Description of the shipping option e.g. \"1 Business Day\""
+        },
+        "note" : {
+          "type" : "string",
+          "description" : "Additional descriptive text (for emphasis) e.g. \"Recommended\""
+        },
+        "estimatedDelivery" : {
+          "type" : "string",
+          "format" : "date",
+          "description" : "The estimated date of delivery. ISO 8601 date e.g. '11-21-2016'."
+        },
+        "fee" : {
+          "$ref" : "#/definitions/Money"
+        },
+        "isPreselected" : {
+          "type" : "boolean",
+          "description" : "Is true if this item pre selected."
+        }
+      },
+      "description" : "A delivery option."
+    },
+    "ShippingOptions" : {
+      "type" : "array",
+      "description" : "A list of possible shipping options.",
+      "items" : {
+        "$ref" : "#/definitions/ShippingOption"
+      }
+    },
+    "Telephone" : {
+      "type" : "object",
+      "properties" : {
+        "home" : {
+          "type" : "string",
+          "description" : "Home telephone number"
+        },
+        "business" : {
+          "type" : "string",
+          "description" : "Business telephone number"
+        }
+      },
+      "description" : "A set of telephone numbers."
+    },
+    "CheckPreviewOptions" : {
+      "type" : "object",
+      "properties" : {
+        "overlay" : {
+          "type" : "boolean",
+          "description" : "A flag to return the overlay only, which includes everything but the background check image."
+        },
+        "check" : {
+          "$ref" : "#/definitions/Check"
+        }
+      },
+      "description" : "A check preview option."
+    },
+    "CheckPreview" : {
+      "type" : "object",
+      "required" : [ "image" ],
+      "properties" : {
+        "image" : {
+          "type" : "string",
+          "description" : "The Base64 code of the image."
+        }
+      },
+      "description" : "Structure containing checkPreview response."
+    },
+    "CheckStyle" : {
+      "type" : "object",
+      "properties" : {
+        "title" : {
+          "type" : "string",
+          "description" : "Title for the style of check."
+        },
+        "productId" : {
+          "type" : "string",
+          "description" : "The productId of that contains the style."
+        },
+        "binding" : {
+          "type" : "string",
+          "description" : "The style of binding used on the checks e.g. duplicate."
+        },
+        "binding2" : {
+          "type" : "string",
+          "description" : "The style of binding used on the checks e.g. duplicate."
+        },
+        "image" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "The image of the style."
+        },
+        "part" : {
+          "type" : "string",
+          "description" : "The style of binding used on the checks e.g. duplicate."
+        },
+        "position" : {
+          "type" : "string",
+          "description" : "The position."
+        },
+        "color" : {
+          "$ref" : "#/definitions/CheckStyle_color"
+        }
+      },
+      "description" : "A style of check product witha a binding."
+    },
+    "SubCategory" : {
+      "type" : "object",
+      "properties" : {
+        "code" : {
+          "type" : "string",
+          "description" : "The code associated with the category."
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "The name of the category."
+        },
+        "subCategories" : {
+          "type" : "array",
+          "description" : "This will be a SubCategory Object.",
+          "items" : {
+            "$ref" : "#/definitions/SubCategory"
+          }
+        }
+      },
+      "description" : "A sub-category used to group accent symbols and OneLiners."
+    },
+    "CheckStyle_color" : {
+      "properties" : {
+        "id" : {
+          "type" : "string",
+          "description" : "id."
+        },
+        "category" : {
+          "type" : "string",
+          "description" : "category."
+        },
+        "name" : {
+          "type" : "string",
+          "description" : "name."
+        },
+        "image" : {
+          "type" : "string",
+          "format" : "url",
+          "description" : "The image of the style."
+        }
+      },
+      "description" : "The color of the style."
+    }
+  },
+  "responses" : {
+    "401" : {
+      "description" : "Authorization failed. Use the getToken service to obtain a valid token.",
+      "schema" : {
+        "$ref" : "#/definitions/Errors"
+      }
+    },
+    "403" : {
+      "description" : "The application has understood the request but refuses to fulfill it because of business validation error.",
+      "schema" : {
+        "$ref" : "#/definitions/Errors"
+      }
+    },
+    "500" : {
+      "description" : "A technical issue prevents fulfilling the request (application error).",
+      "schema" : {
+        "$ref" : "#/definitions/Errors"
+      }
+    },
+    "503" : {
+      "description" : "The application is not available.",
+      "schema" : {
+        "$ref" : "#/definitions/Errors"
+      }
+    },
+    "504" : {
+      "description" : "There is a break in the service chain that prevents fulfilling the request.",
+      "schema" : {
+        "$ref" : "#/definitions/Errors"
+      }
+    }
+  }
+}
