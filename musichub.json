@@ -1,0 +1,1226 @@
+{
+  "swagger" : "2.0",
+  "info" : {
+    "description" : "Projet web M2 GL - Université de Bordeaux - Michel Massamiri & Kenji Fontaine.",
+    "version" : "1.0.0",
+    "title" : "MusicHub",
+    "license" : {
+      "name" : "MIT",
+      "url" : "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags" : [ {
+    "name" : "Authentification",
+    "description" : "Social media authentification"
+  }, {
+    "name" : "Playlists",
+    "description" : "Operations about playlists"
+  }, {
+    "name" : "Songs",
+    "description" : "Operations about songs"
+  } ],
+  "schemes" : [ "https" ],
+  "paths" : {
+    "/auth/google" : {
+      "post" : {
+        "tags" : [ "Authentification" ],
+        "summary" : "One-click sign up with Google",
+        "description" : "Logs in the user and generates a MusicHub token that can be used for all subsequent requests. Valid for 2 hours. If this is the first connection for the user, it will add the user to MusicHub's database using his Google credententials.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization-google",
+          "in" : "header",
+          "description" : "Token ID from user's Google account.",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation",
+            "headers" : {
+              "generatedToken" : {
+                "description" : "MusicHub's token for the user. Valid for 2 hours."
+              }
+            },
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "firstname" : {
+                  "type" : "string"
+                },
+                "lastname" : {
+                  "type" : "string"
+                },
+                "email" : {
+                  "type" : "string"
+                },
+                "socialMediasToken" : {
+                  "$ref" : "#/definitions/inline_response_200_socialMediasToken"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/playlists" : {
+      "get" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Finds all the playlists of the authenticated user",
+        "description" : "",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
+                  "title" : {
+                    "type" : "string"
+                  },
+                  "genre" : {
+                    "type" : "string"
+                  },
+                  "link" : {
+                    "type" : "string"
+                  },
+                  "thumbnail" : {
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  },
+                  "nbItems" : {
+                    "type" : "number"
+                  },
+                  "user_id" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Creates a new playlist with form data",
+        "description" : "Creates a new playlist in MusicHub's database.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "The title property is required.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/body"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "title" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "thumbnail" : {
+                  "type" : "string"
+                },
+                "description" : {
+                  "type" : "string"
+                },
+                "nbItems" : {
+                  "type" : "number"
+                },
+                "user_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/playlists/{id}" : {
+      "get" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Finds the playlist of the authenticated user by ID",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Playlist ID",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "title" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "thumbnail" : {
+                  "type" : "string"
+                },
+                "description" : {
+                  "type" : "string"
+                },
+                "nbItems" : {
+                  "type" : "number"
+                },
+                "user_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Updates user's playlist by id with form data",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Playlist ID",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Only title, description or/and genre can be updated.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/body_1"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "title" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "thumbnail" : {
+                  "type" : "string"
+                },
+                "description" : {
+                  "type" : "string"
+                },
+                "nbItems" : {
+                  "type" : "number"
+                },
+                "user_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "422" : {
+            "description" : "Unprocessable Entity. Only title, description or/and genre can be updated."
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Deletes the playlist of the authenticated user by ID",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Playlist ID",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation : returns deleted playlist",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "title" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "thumbnail" : {
+                  "type" : "string"
+                },
+                "description" : {
+                  "type" : "string"
+                },
+                "nbItems" : {
+                  "type" : "number"
+                },
+                "user_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/playlists/import/youtube" : {
+      "post" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Creates playlists in MusicHub's database using the Youtube API",
+        "description" : "Creates playlists in database if they do not exist, otherwise update them.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Array of the Youtube API playlist ressource (the minimum schema of the body).",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/body_2"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
+                  "title" : {
+                    "type" : "string"
+                  },
+                  "genre" : {
+                    "type" : "string"
+                  },
+                  "link" : {
+                    "type" : "string"
+                  },
+                  "thumbnail" : {
+                    "type" : "string"
+                  },
+                  "description" : {
+                    "type" : "string"
+                  },
+                  "nbItems" : {
+                    "type" : "number"
+                  },
+                  "user_id" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/playlists/thumbnails/upload" : {
+      "post" : {
+        "tags" : [ "Playlists" ],
+        "summary" : "Upload an image to MusicHub",
+        "consumes" : [ "multipart/form-data" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "file",
+          "in" : "formData",
+          "required" : true,
+          "type" : "file"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Succesful Operation",
+            "schema" : {
+              "type" : "string"
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/songs" : {
+      "get" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Find all the songs from one or all playlists of the user",
+        "description" : "If no query is specified, will return all the songs of all the playlists. If a playlist id is specified, will return all the songs from that playlist.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "playlistId",
+          "in" : "query",
+          "description" : "The playlist's ID from which the songs will be fetched.",
+          "required" : false
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "artist" : {
+                    "type" : "string"
+                  },
+                  "genre" : {
+                    "type" : "string"
+                  },
+                  "link" : {
+                    "type" : "string"
+                  },
+                  "playlist_id" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "404" : {
+            "description" : "No playlist was found"
+          },
+          "500" : {
+            "description" : "Internal server error"
+          }
+        }
+      },
+      "post" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Creates a song with form data",
+        "description" : "Name, link and playlist_id are required.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "name, link and playlist_id are required.",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Operation",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "artist" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "playlist_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/songs/{id}" : {
+      "get" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Find song of the user by ID",
+        "description" : "Return the user's song with the specified ID.",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Song ID",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Operation",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "artist" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "playlist_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      },
+      "put" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Updates user's song specified by the ID with form data",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Song ID",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "form data : only name, artist and/or genre can be provided.",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/body_3"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Operation",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "artist" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "playlist_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Acess"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "422" : {
+            "description" : "Unprocessable Entity, only name, artist and/or genre can be provided."
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Deletes song of the user by ID",
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "id",
+          "in" : "path",
+          "description" : "Song ID",
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Operation. Deleted song returned",
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "artist" : {
+                  "type" : "string"
+                },
+                "genre" : {
+                  "type" : "string"
+                },
+                "link" : {
+                  "type" : "string"
+                },
+                "playlist_id" : {
+                  "type" : "string"
+                }
+              }
+            }
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "403" : {
+            "description" : "Forbidden Access"
+          },
+          "404" : {
+            "description" : "Not Found"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/songs/import/youtube" : {
+      "post" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Creates songs in MusicHub's database using the Youtube API",
+        "description" : "Creates songs in the database if they do not exist, otherwise update them. The body must have the exact data source from Youtube API in order to save the metadata from Youtube API.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "playlistId",
+          "in" : "query",
+          "description" : "The playlist's ID in which all the songs will be created.",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Array of the Youtube API video ressource (the minimum schema of the body)",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/body_4"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "artist" : {
+                    "type" : "string"
+                  },
+                  "genre" : {
+                    "type" : "string"
+                  },
+                  "link" : {
+                    "type" : "string"
+                  },
+                  "playlist_id" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/songs/import/api" : {
+      "post" : {
+        "tags" : [ "Songs" ],
+        "summary" : "Creates songs in the API",
+        "description" : "Creates songs in the API in order to mix different songs from different playlists into one playlist. The body must be an array of Songs.",
+        "consumes" : [ "application/json" ],
+        "produces" : [ "application/json" ],
+        "parameters" : [ {
+          "name" : "Authorization",
+          "in" : "header",
+          "description" : "Bearer + MusicHub's user's token.",
+          "required" : true
+        }, {
+          "name" : "playlistId",
+          "in" : "query",
+          "description" : "The playlist's ID in which the songs will be created.",
+          "required" : true
+        }, {
+          "in" : "body",
+          "name" : "body",
+          "description" : "Array of Songs. The name and link properties are required for each object in the array.",
+          "required" : true,
+          "schema" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/definitions/body_5"
+            }
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "Successful Operation",
+            "schema" : {
+              "type" : "array",
+              "items" : {
+                "type" : "object",
+                "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
+                  "name" : {
+                    "type" : "string"
+                  },
+                  "artist" : {
+                    "type" : "string"
+                  },
+                  "genre" : {
+                    "type" : "string"
+                  },
+                  "link" : {
+                    "type" : "string"
+                  },
+                  "playlist_id" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "Bad Request. Playlist's ID is required in the request parameters OR Request's body is undefined or request's body is not an array."
+          },
+          "401" : {
+            "description" : "Unauthorized Access"
+          },
+          "500" : {
+            "description" : "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "definitions" : {
+    "User" : {
+      "type" : "object",
+      "properties" : {
+        "firstname" : {
+          "type" : "string"
+        },
+        "lastname" : {
+          "type" : "string"
+        },
+        "email" : {
+          "type" : "string"
+        },
+        "socialMediasToken" : {
+          "$ref" : "#/definitions/inline_response_200_socialMediasToken"
+        }
+      }
+    },
+    "Playlist" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "title" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        },
+        "link" : {
+          "type" : "string"
+        },
+        "thumbnail" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "nbItems" : {
+          "type" : "number"
+        },
+        "user_id" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Song" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "artist" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        },
+        "link" : {
+          "type" : "string"
+        },
+        "playlist_id" : {
+          "type" : "string"
+        }
+      }
+    },
+    "inline_response_200_socialMediasToken" : {
+      "properties" : {
+        "google" : {
+          "type" : "string"
+        },
+        "spotify" : {
+          "type" : "string"
+        },
+        "deezer" : {
+          "type" : "string"
+        }
+      }
+    },
+    "inline_response_200" : {
+      "properties" : {
+        "firstname" : {
+          "type" : "string"
+        },
+        "lastname" : {
+          "type" : "string"
+        },
+        "email" : {
+          "type" : "string"
+        },
+        "socialMediasToken" : {
+          "$ref" : "#/definitions/inline_response_200_socialMediasToken"
+        }
+      }
+    },
+    "inline_response_200_1" : {
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "title" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        },
+        "link" : {
+          "type" : "string"
+        },
+        "thumbnail" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "nbItems" : {
+          "type" : "number"
+        },
+        "user_id" : {
+          "type" : "string"
+        }
+      }
+    },
+    "body" : {
+      "type" : "object",
+      "properties" : {
+        "title" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        },
+        "link" : {
+          "type" : "string"
+        },
+        "thumbnail" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "nbItems" : {
+          "type" : "number"
+        }
+      }
+    },
+    "body_1" : {
+      "type" : "object",
+      "properties" : {
+        "title" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        }
+      }
+    },
+    "playlistsimportyoutube_snippet_thumbnails_high" : {
+      "properties" : {
+        "url" : {
+          "type" : "string"
+        }
+      }
+    },
+    "playlistsimportyoutube_snippet_thumbnails" : {
+      "properties" : {
+        "high" : {
+          "$ref" : "#/definitions/playlistsimportyoutube_snippet_thumbnails_high"
+        }
+      }
+    },
+    "playlistsimportyoutube_snippet" : {
+      "properties" : {
+        "title" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "thumbnails" : {
+          "$ref" : "#/definitions/playlistsimportyoutube_snippet_thumbnails"
+        }
+      }
+    },
+    "playlistsimportyoutube_contentDetails" : {
+      "properties" : {
+        "itemCount" : {
+          "type" : "number"
+        }
+      }
+    },
+    "body_2" : {
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "snippet" : {
+          "$ref" : "#/definitions/playlistsimportyoutube_snippet"
+        },
+        "contentDetails" : {
+          "$ref" : "#/definitions/playlistsimportyoutube_contentDetails"
+        }
+      }
+    },
+    "inline_response_200_2" : {
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "artist" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        },
+        "link" : {
+          "type" : "string"
+        },
+        "playlist_id" : {
+          "type" : "string"
+        }
+      }
+    },
+    "body_3" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "artist" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        }
+      }
+    },
+    "songsimportyoutube_snippet" : {
+      "properties" : {
+        "title" : {
+          "type" : "string"
+        },
+        "playlistId" : {
+          "type" : "string"
+        }
+      }
+    },
+    "songsimportyoutube_contentDetails" : {
+      "properties" : {
+        "videoId" : {
+          "type" : "string"
+        }
+      }
+    },
+    "body_4" : {
+      "properties" : {
+        "snippet" : {
+          "$ref" : "#/definitions/songsimportyoutube_snippet"
+        },
+        "contentDetails" : {
+          "$ref" : "#/definitions/songsimportyoutube_contentDetails"
+        }
+      }
+    },
+    "body_5" : {
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "artist" : {
+          "type" : "string"
+        },
+        "genre" : {
+          "type" : "string"
+        },
+        "link" : {
+          "type" : "string"
+        }
+      }
+    }
+  },
+  "externalDocs" : {
+    "description" : "Find out more about Swagger",
+    "url" : "http://swagger.io"
+  }
+}
